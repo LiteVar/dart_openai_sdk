@@ -14,6 +14,7 @@ dependencies:
   meta: ^1.9.1
   collection: ^1.17.2
   fetch_client: ^1.0.2
+  ovo: ^0.0.2
 
 dev_dependencies:
   dart_code_metrics: ^4.19.2

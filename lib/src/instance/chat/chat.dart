@@ -1,5 +1,6 @@
 import 'package:dart_openai/src/core/builder/base_api_url.dart';
 import 'package:dart_openai/src/core/networking/client.dart';
+import 'package:dart_openai/src/core/utils/extensions.dart';
 
 import '../../core/base/chat/chat.dart';
 import '../../core/constants/strings.dart';
@@ -8,6 +9,7 @@ import '../../core/models/tool/tool.dart';
 import '../../core/utils/logger.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:ovo/ovo.dart' as ovo;
 
 /// {@template openai_chat}
 /// This class is responsible for handling all chat requests, such as creating a chat completion for the message(s).
@@ -80,7 +82,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     double? frequencyPenalty,
     Map<String, dynamic>? logitBias,
     String? user,
-    Map<String, String>? responseFormat,
+    Object? responseFormat,
     int? seed,
     bool? logprobs,
     int? topLogprobs,
@@ -104,7 +106,10 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (logitBias != null) "logit_bias": logitBias,
         if (user != null) "user": user,
         if (seed != null) "seed": seed,
-        if (responseFormat != null) "response_format": responseFormat,
+        if (responseFormat is ovo.Object)
+          "response_format": responseFormat.formatJsonData()
+        else if (responseFormat is Map<String, dynamic>)
+          "response_format": responseFormat,
         if (logprobs != null) "logprobs": logprobs,
         if (topLogprobs != null) "top_logprobs": topLogprobs,
       },
@@ -176,7 +181,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     double? presencePenalty,
     double? frequencyPenalty,
     Map<String, dynamic>? logitBias,
-    Map<String, String>? responseFormat,
+    Object? responseFormat,
     int? seed,
     String? user,
     http.Client? client,
@@ -200,7 +205,10 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (logitBias != null) "logit_bias": logitBias,
         if (user != null) "user": user,
         if (seed != null) "seed": seed,
-        if (responseFormat != null) "response_format": responseFormat,
+        if (responseFormat is ovo.Object)
+          "response_format": responseFormat.formatJsonData()
+        else if (responseFormat is Map<String, dynamic>)
+          "response_format": responseFormat,
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);
@@ -225,7 +233,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     Map<String, dynamic>? logitBias,
     String? user,
     http.Client? client,
-    Map<String, String>? responseFormat,
+    Object? responseFormat,
     int? seed,
   }) {
     return OpenAINetworkingClient.postStream<OpenAIStreamChatCompletionModel>(
@@ -247,7 +255,10 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (logitBias != null) "logit_bias": logitBias,
         if (user != null) "user": user,
         if (seed != null) "seed": seed,
-        if (responseFormat != null) "response_format": responseFormat,
+        if (responseFormat is ovo.Object)
+          "response_format": responseFormat.formatJsonData()
+        else if (responseFormat is Map<String, dynamic>)
+          "response_format": responseFormat,
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);
