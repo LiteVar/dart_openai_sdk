@@ -1,10 +1,10 @@
-name: dart_openai
+name: dart_openai_sdk
 description: Dart SDK for openAI Apis (GPT-3 & DALL-E), integrate easily the power of OpenAI's state-of-the-art AI models into their Dart applications.
-version: 5.1.0
-homepage: https://github.com/anasfik/openai
-repository: https://github.com/anasfik/openai
-documentation: https://github.com/anasfik/openai/blob/main/README.md
-issue_tracker: https://github.com/anasfik/openai/issues
+version: 5.2.0
+homepage: https://github.com/LiteVar/openai
+repository: https://github.com/LiteVar/openai
+documentation: https://github.com/LiteVar/openai/blob/main/README.md
+issue_tracker: https://github.com/LiteVar/openai/issues
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

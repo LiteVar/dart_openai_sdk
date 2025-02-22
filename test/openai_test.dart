@@ -5,12 +5,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as dev;
 import 'package:collection/collection.dart';
-import 'package:dart_openai/dart_openai.dart';
-import 'package:dart_openai/src/core/builder/headers.dart';
-import 'package:dart_openai/src/core/constants/config.dart';
-import 'package:dart_openai/src/core/constants/strings.dart';
-import 'package:dart_openai/src/core/models/model/sub_models/permission.dart';
-import 'package:dart_openai/src/core/utils/logger.dart';
+import 'package:dart_openai_sdk/dart_openai_sdk.dart';
+import 'package:dart_openai_sdk/src/core/builder/headers.dart';
+import 'package:dart_openai_sdk/src/core/constants/config.dart';
+import 'package:dart_openai_sdk/src/core/constants/strings.dart';
+import 'package:dart_openai_sdk/src/core/models/model/sub_models/permission.dart';
+import 'package:dart_openai_sdk/src/core/utils/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
@@ -352,9 +352,9 @@ void main() async {
         (streamEvent) {
           expect(streamEvent, isA<OpenAIStreamChatCompletionModel>());
           expect(streamEvent.choices.first.delta.content,
-              isA<List<OpenAIChatCompletionChoiceMessageContentItemModel>?>());
+              isA<List<OpenAIChatCompletionChoiceMessageContentItemModel>?>(),);
           expect(streamEvent.choices.first.delta.content?.first?.text,
-              isA<String?>());
+              isA<String?>(),);
           if (streamEvent.usage != null) {
             final u = streamEvent.usage!;
             expect(u, isA<OpenAIStreamChatCompletionUsageModel>());

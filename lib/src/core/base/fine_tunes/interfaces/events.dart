@@ -1,4 +1,4 @@
-import 'package:dart_openai/src/core/models/fine_tune/sub_models/event.dart';
+import 'package:dart_openai_sdk/src/core/models/fine_tune/sub_models/event.dart';
 
 import 'package:http/http.dart' as http;
 

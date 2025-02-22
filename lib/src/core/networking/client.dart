@@ -1,12 +1,12 @@
 import "dart:async";
 import "dart:convert";
 import "dart:io";
-import "package:dart_openai/src/core/constants/config.dart";
-import "package:dart_openai/src/core/utils/extensions.dart";
+import "package:dart_openai_sdk/src/core/constants/config.dart";
+import "package:dart_openai_sdk/src/core/utils/extensions.dart";
 
-import 'package:dart_openai/dart_openai.dart';
-import "package:dart_openai/src/core/builder/headers.dart";
-import "package:dart_openai/src/core/utils/logger.dart";
+import 'package:dart_openai_sdk/dart_openai_sdk.dart';
+import "package:dart_openai_sdk/src/core/builder/headers.dart";
+import "package:dart_openai_sdk/src/core/utils/logger.dart";
 import "package:http/http.dart" as http;
 import "package:meta/meta.dart";
 

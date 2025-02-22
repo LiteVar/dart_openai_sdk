@@ -1,7 +1,7 @@
-import 'package:dart_openai/dart_openai.dart';
-import 'package:dart_openai/src/core/builder/base_api_url.dart';
-import 'package:dart_openai/src/core/networking/client.dart';
-import 'package:dart_openai/src/instance/model/model.dart';
+import 'package:dart_openai_sdk/dart_openai_sdk.dart';
+import 'package:dart_openai_sdk/src/core/builder/base_api_url.dart';
+import 'package:dart_openai_sdk/src/core/networking/client.dart';
+import 'package:dart_openai_sdk/src/instance/model/model.dart';
 import 'package:meta/meta.dart';
 
 import '../../core/base/fine_tunes/base.dart';

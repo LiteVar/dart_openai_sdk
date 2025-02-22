@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dart_openai/dart_openai.dart';
+import 'package:dart_openai_sdk/dart_openai_sdk.dart';
 import 'package:example/env/env.dart';
 
 void main() async {

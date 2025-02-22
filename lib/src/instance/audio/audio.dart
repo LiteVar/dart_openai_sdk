@@ -1,9 +1,9 @@
-import 'package:dart_openai/src/core/builder/base_api_url.dart';
-import 'package:dart_openai/src/core/networking/client.dart';
+import 'package:dart_openai_sdk/src/core/builder/base_api_url.dart';
+import 'package:dart_openai_sdk/src/core/networking/client.dart';
 
 import 'dart:io';
 
-import '../../../dart_openai.dart';
+import '../../../dart_openai_sdk.dart';
 import '../../core/base/audio/audio.dart';
 import '../../core/constants/strings.dart';
 import '../../core/utils/logger.dart';

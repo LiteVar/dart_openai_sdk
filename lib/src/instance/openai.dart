@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:dart_openai/src/instance/edits/edits.dart';
-import 'package:dart_openai/src/instance/moderations/moderations.dart';
+import 'package:dart_openai_sdk/src/instance/edits/edits.dart';
+import 'package:dart_openai_sdk/src/instance/moderations/moderations.dart';
 import '../core/base/openai_client/base.dart';
 import '../core/builder/headers.dart';
 import '../core/constants/config.dart';

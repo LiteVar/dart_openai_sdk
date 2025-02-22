@@ -1,4 +1,4 @@
-import 'package:dart_openai/src/core/models/edit/edit.dart';
+import 'package:dart_openai_sdk/src/core/models/edit/edit.dart';
 import 'package:meta/meta.dart';
 
 import '../../core/base/edits/edits.dart';

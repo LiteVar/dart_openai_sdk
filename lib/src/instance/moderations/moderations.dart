@@ -1,7 +1,7 @@
-import 'package:dart_openai/src/core/builder/base_api_url.dart';
-import 'package:dart_openai/src/core/constants/strings.dart';
-import 'package:dart_openai/src/core/models/moderation/moderation.dart';
-import 'package:dart_openai/src/core/networking/client.dart';
+import 'package:dart_openai_sdk/src/core/builder/base_api_url.dart';
+import 'package:dart_openai_sdk/src/core/constants/strings.dart';
+import 'package:dart_openai_sdk/src/core/models/moderation/moderation.dart';
+import 'package:dart_openai_sdk/src/core/networking/client.dart';
 
 import '../../core/base/moderations/base.dart';
 import 'package:meta/meta.dart';
