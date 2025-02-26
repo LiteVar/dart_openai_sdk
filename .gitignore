@@ -14,3 +14,5 @@ env.g.dart
 *.mp3
 *.png
 .idea/
+.vscode
+.github
