@@ -1,10 +1,8 @@
 # Changelog
 
-## NEXT
-
-- Support for logprobs in the chat completions API.
-
-- Bug fixes.
+## 5.2.0
+- add chat completion json_schema support.
+- update dependence libs.
 
 ## 5.1.0
 

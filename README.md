@@ -1,57 +1,27 @@
-# NEW: ChatGPT & Whisper APIs are [added](#chat-chatgpt) to the library and can be used directly.
+# Dart OpenAI SDK
 
-</br>
-<p align="center">
-<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/anasfik/openai">
-<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/anasfik/openai">
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/anasfik/openai?style=social">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/anasfik/openai/dart.yml?label=tests">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/anasfik/openai/release.yml?label=build">
-<img alt="GitHub" src="https://img.shields.io/github/license/anasfik/openai">
-<img alt="Pub Version" src="https://img.shields.io/pub/v/dart_openai">
-<img alt="Pub Likes" src="https://img.shields.io/pub/likes/dart_openai">
-<img alt="Pub Points" src="https://img.shields.io/pub/points/dart_openai">
-<img alt="Pub Popularity" src="https://img.shields.io/pub/popularity/dart_openai">
+A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 
-</p>
+- **NOT** OpenAI official
+- **NEW:** Chat Completion json_schema Support.
+- **TODO:** RealTime API Support.
+- **fork** from [dart_openai](https://github.com/anasfik/openai) and continue maintained by [LitaVar](https://github.com/LiteVar).
 
-</br>
+## Note
+- Help this grow and get discovered by people who might need it by starring it ⭐.
+- An open-source Client package that allows developers to easily integrate the power of OpenAI's state-of-the-art AI models into their Dart/Flutter applications.
+- This library provides simple and intuitive methods for making requests to OpenAI's various APIs, including the GPT-3 language model, DALL-E image generation, and more.
+- The package is designed to be lightweight and easy to use, so you can focus on building your application, rather than worrying about the complexities and errors caused by dealing with HTTP requests.
 
-<h3>Help this grow and get discovered by people who might need it by starring it ⭐.</h3>
-
-</br>
-</br>
-
-An open-source Client package that allows developers to easily integrate the power of OpenAI's state-of-the-art AI models into their Dart/Flutter applications.
-
-This library provides simple and intuitive methods for making requests to OpenAI's various APIs, including the GPT-3 language model, DALL-E image generation, and more.
-
-The package is designed to be lightweight and easy to use, so you can focus on building your application, rather than worrying about the complexities and errors caused by dealing with HTTP requests.
-
-</br>
-</br>
-
-<i>Unofficial</i>
-</br>
-<i>OpenAI does not have any official Dart library.</I>
-
-### Thanks:
-
-Thanks to the contributors & sponsors of this project that it exists and is still maintained:
-- [Sponsors](https://github.com/sponsors/anasfik)
-- [Contributors](https://github.com/anasfik/openai/graphs/contributors)
-
-Consider helping this project you too.
-
-## ✨ Key Features
+## Key Features
 
 - Easy to use methods that reflect exactly the OpenAI documentation, with additional functionalities that make it better to use with Dart Programming Language.
 - Authorize just once, use it anywhere and at any time in your application.
 - Developer-friendly.
 - `Stream` functionality for completions API & fine-tune events API.
-- Ready examples/snippets for almost everything implmented in the package at `/example` folder.
+- Ready examples/snippets for almost everything implemented in the package at `/example` folder.
 
-## 👑 Code Progress (100 %)
+## Code Progress
 
 - [x] [Authentication](#authentication)
 - [x] [Models](#models)
@@ -59,7 +29,7 @@ Consider helping this project you too.
   - [x] With `Stream` responses.
 - [x] [Chat (chatGPT)](#chat-chatgpt)
   - [x] With `Stream` responses.
-  - [x] [Tools](#tools-new-implementation-of-functions-calling)
+  - [x] [Tools](#tools--new-implementation-of-functions-calling)
 - [x] [Edits](#edits)
 - [x] [Images](#images)
 - [x] [Embeddings](#embeddings)
@@ -69,37 +39,17 @@ Consider helping this project you too.
   - [x] With events `Stream` responses.
 - [x] [Moderation](#moderations)
 
-## 💫 Testing Progress (100 %)
+# Usage
 
-- [x] [Authentication](#authentication)
-- [x] [Models](#models)
-- [x] [Completions](#completions)
-- [x] [chat (chatGPT)](#chat-chatgpt)
-- [x] [Edits](#edits)
-- [x] [Images](#images)
-- [x] [Embeddings](#embeddings)
-- [x] [Audio](#audio)
-- [x] [Files](#files)
-- [x] [Fine-tunes](#fine-tunes)
-- [x] [Moderation](#moderations)</br>
+## Installation
 
-</br>
-
-# 📜 Full Documentation:
-
-For the full documentation about all members this library offers, [check here](https://pub.dev/documentation/dart_openai/latest/).
-
-</br>
-
-# 🟢 Usage
 
 ## Authentication
 
 ### API key
 
-The OpenAI API uses API keys for authentication. you can get your account API key by visiting [API keys](https://platform.openai.com/account/api-keys) of your account.
-
-We highly recommend loading your secret key at runtime from a `.env` file, you can use the [envied](https://pub.dev/packages/envied) package or any other package that does the same job.
+- The OpenAI API uses API keys for authentication. you can get your account API key by visiting [API keys](https://platform.openai.com/account/api-keys) of your account.
+- We highly recommend loading your secret key at runtime from a `.env` file, you can use the [envied](https://pub.dev/packages/envied) package or any other package that does the same job.
 
 ```env
 // .env
@@ -121,38 +71,35 @@ abstract class Env {
 ```dart
 // lib/main.dart
 void main() {
- OpenAI.apiKey = Env.apiKey; // Initializes the package with that API key, all methods now are ready for use.
- // ..
+  OpenAI.apiKey = Env.apiKey; // Initializes the package with that API key, all methods now are ready for use.
+  // ..
 }
 ```
 
-if no `apiKey` is set, and you tried to access `OpenAI.instance`, a `MissingApiKeyException` will be thrown even before making the actual request.
-
-if the `apiKey` is set, but it is invalid when making requests, a `RequestFailedException` will be thrown in your app, check the [error handling](#error-handling) section for more info.
+- If no `apiKey` is set, and you tried to access `OpenAI.instance`, a `MissingApiKeyException` will be thrown even before making the actual request.
+- If the `apiKey` is set, but it is invalid when making requests, a `RequestFailedException` will be thrown in your app, check the [error handling](#error-handling) section for more info.
 
 ### Setting an organization
 
-if you belong to a specific organization, you can pass its id to `OpenAI.organization` like this:
+- If you belong to a specific organization, you can pass its id to `OpenAI.organization` like this:
 
 ```dart
- OpenAI.organization = "ORGANIZATION ID";
+OpenAI.organization = "ORGANIZATION ID";
 ```
 
-If you don't belong actually to any organization, you can just ignore this section, or set it to `null`.
+- If you don't belong actually to any organization, you can just ignore this section, or set it to `null`.
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/authentication)
 
-</br>
-
 ### Settings a default request timeout
 
-The package make use if the [http](https://pub.dev/packages/http) to make requests, this one have a default timeout of 30 seconds, this means that any requests that takes more than 30 seconds will be cancelled, and a exception will be thrown, to chenge that you will need to set your own default timeout:
+- The package make use if the [http](https://pub.dev/packages/http) to make requests, this one have a default timeout of 30 seconds, this means that any requests that takes more than 30 seconds will be cancelled, and a exception will be thrown, to chenge that you will need to set your own default timeout:
 
 ```dart
 OpenAI.requestsTimeOut = Duration(seconds: 60); // 60 seconds.
 ```
 
-And now, the time consuming methods will wait for 60 seconds to get a response before throwing an exception.
+And now, the time-consuming methods will wait for 60 seconds to get a response before throwing an exception.
 
 ### Setting your own base url
 
@@ -207,19 +154,17 @@ If the model id you provided does not exist or isn't available for your account,
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/models)
 
-</br>
 
 ### Delete fine tuned models
 
-OpenAI offers [fine tuning](https://platform.openai.com/docs/guides/fine-tuning) feature, which you can make use of it with this package [here](#fine-tunes).
+OpenAI offers [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning) feature, which you can make use of it with this package [here](#fine-tunes).
 
-However, if it happen that you want to delete a fine tuned model, you can use the `delete()` method:
+However, if it happens that you want to delete a fine-tuned model, you can use the `delete()` method:
 
 ```dart
 bool isDeleted = await OpenAI.instance.model.delete("fine-tune-id");
 
 print(isDeleted); // ...
-
 ```
 
 ## Completions
@@ -244,7 +189,6 @@ OpenAICompletionModel completion = await OpenAI.instance.completion.create(
 print(completion.choices.first.text); // ...
 print(completion.systemFingerprint); // ...
 print(completion.id); // ...
-
 ```
 
 if the request failed (as an example, if you did pass an invalid `model`...), a `RequestFailedException` will be thrown, check [Error Handling](#error-handling) section.
@@ -276,8 +220,6 @@ completionStream.listen((event) {
 **Useful: Check also the `createStreamText()` method**
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/completions)
-
-</br>
 
 ## Chat (ChatGPT)
 
@@ -370,14 +312,12 @@ chatStream.listen(
 );
 ```
 
-</br>
-
 ### Tools ( new implementation of functions calling)
 
 The chat API offer the `tools` feature which allows for calling functions from the chat API, this feature is implemented in the package, and can be used like the following, please note that this is just a showcase, and you should handle the edge cases in your app such when there is no tool call, or when the tool call is not the one you sent, etc...:
 
 ```dart
- OpenAI.apiKey = Env.apiKey;
+OpenAI.apiKey = Env.apiKey;
 
 // The function to be called by the tool.
 void sumNumbers(int number1, int number2) {
@@ -402,34 +342,34 @@ final sumNumbersTool = OpenAIToolModel(
   ),
 );
 
-  // The user text message that will be sent to the API.
+// The user text message that will be sent to the API.
 final userMessage = OpenAIChatCompletionChoiceMessageModel(
-    content: [
+  content: [
     OpenAIChatCompletionChoiceMessageContentItemModel.text(
-        "What is the sum of 9996 and 3?",
-      ),
+      "What is the sum of 9996 and 3?",
+    ),
   ],
-    role: OpenAIChatMessageRole.user,
+  role: OpenAIChatMessageRole.user,
 );
 
-  // The actual call.
+// The actual call.
 final chat = await OpenAI.instance.chat.create(
-    model: "gpt-3.5-turbo",
-    messages: [userMessage],
-    tools: [sumNumbersTool],
+  model: "gpt-3.5-turbo",
+  messages: [userMessage],
+  tools: [sumNumbersTool],
 );
 
 // ! This handling is only for showcase and not completed as edge cases will not be handled that you should handle in your app.
 
 final message = chat.choices.first.message;
 
-// Wether the message has a tool call.
-  if (message.haveToolCalls) {
+// Whether the message has a tool call.
+if (message.haveToolCalls) {
   final call = message.toolCalls!.first;
 
-    // Wether the tool call is the one we sent.
+  // Whether the tool call is the one we sent.
   if (call.function.name == "sumOfTwoNumbers") {
-      // decode the arguments from the tool call.
+    // decode the arguments from the tool call.
     final decodedArgs = jsonDecode(call.function.arguments);
 
     final number1 = decodedArgs["number1"];
@@ -438,7 +378,7 @@ final message = chat.choices.first.message;
     // Call the function with the arguments.
     sumNumbers(number1, number2);
   }
-  }
+}
 ```
 
 Learn more from [here](https://platform.openai.com/docs/api-reference/chat/create).
@@ -465,8 +405,6 @@ for (int index = 0; index < edit.choices.length; index++) {
 ```
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/edits)
-
-</br>
 
 ## Images
 
@@ -532,7 +470,6 @@ for (var index = 0; index < imageVariations.data.length; index++) {
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/images)
 
-</br>
 
 ## Embeddings
 
@@ -553,8 +490,6 @@ for (int index = 0; index < embedding.data.length; index++) {
 ```
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/embeddings)
-
-</br>
 
 ## Audio
 
@@ -613,7 +548,6 @@ print(translation.text);
 
 Learn more from [here](https://platform.openai.com/docs/api-reference/audio/createTranslation).
 
-</br>
 
 ## Files
 
@@ -645,7 +579,7 @@ print(uploadedFile.id); // ...
 
 ### Delete file
 
-Deletes an existent file by it's id.
+Deletes an existent file by its id.
 
 ```dart
 bool isFileDeleted = await OpenAI.instance.file.delete("/* FILE ID */");
@@ -655,7 +589,7 @@ print(isFileDeleted);
 
 ### Retrieve file
 
-Fetches for a single file by it's id and returns informations about it.
+Fetches for a single file by its id and returns information about it.
 
 ```dart
 OpenAIFileModel file = await OpenAI.instance.file.retrieve("FILE ID");
@@ -664,7 +598,7 @@ print(file.id);
 
 ### Retrieve file content
 
-Fetches for a single file content by it's id.
+Fetches for a single file content by its id.
 
 ```dart
 dynamic fileContent  = await OpenAI.instance.file.retrieveContent("FILE ID");
@@ -674,9 +608,8 @@ print(fileContent);
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/files)
 
-</br>
 
-## Fine Tunes
+## Fine-Tunes
 
 ### Create fine-tune
 
@@ -684,7 +617,7 @@ Creates a job that fine-tunes a specified model from a given dataset, and return
 
 ```dart
 OpenAIFineTuneModel fineTune = await OpenAI.instance.fineTune.create(
- trainingFile: "FILE ID",
+  trainingFile: "FILE ID",
 );
 
 print(fineTune.status); // ...
@@ -702,7 +635,7 @@ print(fineTunes.first); // ...
 
 ### Retrieve fine-tune
 
-Retrieves a fine-tune by its id.
+Retrieves a fine-tuned by its id.
 
 ```dart
 OpenAIFineTuneModel fineTune = await OpenAI.instance.fineTune.retrieve("FINE TUNE ID");
@@ -722,12 +655,12 @@ print(cancelledFineTune.status); // ...
 
 ### List fine-tune events
 
-Lists a single fine-tune progress events by it's id.
+Lists a single fine-tune progress events by its id.
 
 ```dart
- List<OpenAIFineTuneEventModel> events = await OpenAI.instance.fineTune.listEvents("FINE TUNE ID");
+List<OpenAIFineTuneEventModel> events = await OpenAI.instance.fineTune.listEvents("FINE TUNE ID");
 
- print(events.first.message); // ...
+print(events.first.message); // ...
 ```
 
 ### Listen to fine-tune events `Stream`
@@ -758,7 +691,6 @@ print(deleted); // ...
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/fine-tunes)
 
-</br>
 
 ## Moderations
 
@@ -777,35 +709,18 @@ print(moderation.results.first.categories.hate); // ...
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/moderations)
 
-</br>
-
 ## Error Handling
 
 Any time an error happens from the OpenAI API ends (As Example: when you try to create an image variation from a non-image file.. , a `RequestFailedException` will be thrown automatically inside your Flutter / Dart app, you can use a `try-catch` to catch that error, and make an action based on it:
 
 ```dart
 try {
-
-// This will throw an error.
- final errorVariation = await OpenAI.instance.image.variation(
-  image: File(/*PATH OF NON-IMAGE FILE*/),
- );
+  // This will throw an error.
+  final errorVariation = await OpenAI.instance.image.variation(
+    image: File(/*PATH OF NON-IMAGE FILE*/),
+  );
 } on RequestFailedException catch(e) {
- print(e.message);
- print(e.statusCode);
+  print(e.message);
+  print(e.statusCode);
 }
 ```
-
-</br>
-</br>
-
-### Want To Help ?
-
-Please, Just remember that any kind of help related to these tasks are welcome, for the sake of the community.
-
-- Writing documentation: if you see any class, property, method.. that you know what does and it is undocumented, please take from your time 2 minutes and help another developer that doesn't.
-- Code Refactoring: I know this is my job not yours :), but if you can and want, you're more than welcome.
-- Reviewing code: if it happens that there is a better way to make something happen in the SDK, please just let me know.
-- if you tried any sample of use cases, examples of yours and wanted to include it in the examples/, please go ahead.
-- Mention any updates if they exists in the API, Dart, a certain package, or even Flutter that relates to this package.
-- [Donate to the project](https://github.com/sponsors/anasfik), it will help me to keep working on it, and make it better.

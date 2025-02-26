@@ -1,22 +1,21 @@
 name: dart_openai_sdk
-description: Dart SDK for openAI Apis (GPT-3 & DALL-E), integrate easily the power of OpenAI's state-of-the-art AI models into their Dart applications.
+description: A Flutter/Dart SDK for OpenAI API by LitaVar.
 version: 5.2.0
-homepage: https://github.com/LiteVar/openai
-repository: https://github.com/LiteVar/openai
-documentation: https://github.com/LiteVar/openai/blob/main/README.md
-issue_tracker: https://github.com/LiteVar/openai/issues
+homepage: https://github.com/LiteVar/dart_openai_sdk
+repository: https://github.com/LiteVar/dart_openai_sdk
+documentation: https://github.com/LiteVar/dart_openai_sdk/blob/main/README.md
+issue_tracker: https://github.com/LiteVar/dart_openai_sdk/issues
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  http: ^1.1.0
-  meta: ^1.9.1
-  collection: ^1.17.2
-  fetch_client: ^1.0.2
+  http: ^1.3.0
+  meta: ^1.16.0
+  collection: ^1.19.1
+  fetch_client: ^1.1.2
   ovo: ^0.0.2
 
 dev_dependencies:
-  dart_code_metrics: ^4.19.2
-  lints: ^3.0.0
-  test: ^1.24.3
+  lints: ^5.1.1
+  test: ^1.25.15
