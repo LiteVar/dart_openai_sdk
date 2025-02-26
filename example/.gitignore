@@ -13,3 +13,4 @@ build/
 *.png
 
 speechOutput/
+pubspec.lock
