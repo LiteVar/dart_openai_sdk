@@ -2,7 +2,6 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 import "package:dart_openai_sdk/src/core/constants/config.dart";
-import "package:dart_openai_sdk/src/core/utils/extensions.dart";
 
 import 'package:dart_openai_sdk/dart_openai_sdk.dart';
 import "package:dart_openai_sdk/src/core/builder/headers.dart";
@@ -13,8 +12,8 @@ import "package:meta/meta.dart";
 import '../constants/strings.dart';
 
 import "../utils/streaming_http_client_default.dart"
-    if (dart.library.js) 'package:dart_openai/src/core/utils/streaming_http_client_web.dart'
-    if (dart.library.io) 'package:dart_openai/src/core/utils/streaming_http_client_io.dart';
+    if (dart.library.js) 'package:dart_openai_sdk/src/core/utils/streaming_http_client_web.dart'
+    if (dart.library.io) 'package:dart_openai_sdk/src/core/utils/streaming_http_client_io.dart';
 
 /// Handling exceptions returned by OpenAI Stream API.
 final class _OpenAIChatStreamSink implements EventSink<String> {
