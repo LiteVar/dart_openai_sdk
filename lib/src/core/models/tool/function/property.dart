@@ -68,14 +68,14 @@ class OpenAIFunctionProperty {
     required String name,
     String? description,
     bool isRequired = false,
-    List<String>? enumValues,
+    List<String>? enumValues
   }) {
     return OpenAIFunctionProperty.primitive(
-      name: name,
-      isRequired: isRequired,
-      type: functionTypeString,
-      description: description,
-      enumValues: enumValues,
+        name: name,
+        isRequired: isRequired,
+        type: functionTypeString,
+        description: description,
+        enumValues: enumValues
     );
   }
 
@@ -85,12 +85,14 @@ class OpenAIFunctionProperty {
     required String name,
     String? description,
     bool isRequired = false,
+    List<bool>? enumValues
   }) {
     return OpenAIFunctionProperty.primitive(
-      name: name,
-      isRequired: isRequired,
-      type: functionTypeBoolean,
-      description: description,
+        name: name,
+        isRequired: isRequired,
+        type: functionTypeBoolean,
+        description: description,
+        enumValues: enumValues
     );
   }
 
@@ -100,12 +102,14 @@ class OpenAIFunctionProperty {
     required String name,
     String? description,
     bool isRequired = false,
+    List<int>? enumValues,
   }) {
     return OpenAIFunctionProperty.primitive(
-      name: name,
-      isRequired: isRequired,
-      type: functionTypeInteger,
-      description: description,
+        name: name,
+        isRequired: isRequired,
+        type: functionTypeInteger,
+        description: description,
+        enumValues: enumValues
     );
   }
 
@@ -115,12 +119,14 @@ class OpenAIFunctionProperty {
     required String name,
     String? description,
     bool isRequired = false,
+    List<double>? enumValues,
   }) {
     return OpenAIFunctionProperty.primitive(
-      name: name,
-      isRequired: isRequired,
-      type: functionTypeNumber,
-      description: description,
+        name: name,
+        isRequired: isRequired,
+        type: functionTypeNumber,
+        description: description,
+        enumValues: enumValues
     );
   }
 
