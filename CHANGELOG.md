@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.1
+- support enum for object type in JSON schema
+
 ## 5.2.0
 - add chat completion json_schema support.
 - update dependence libs.
