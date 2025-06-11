@@ -204,6 +204,7 @@ abstract class OpenAINetworkingClient {
     required Directory? outputDirectory,
     Map<String, dynamic>? body,
     http.Client? client,
+    String? fileExtension,
   }) async {
     OpenAILogger.logStartRequest(to);
 
@@ -254,13 +255,16 @@ abstract class OpenAINetworkingClient {
 
       OpenAILogger.requestFinishedSuccessfully();
 
-      final fileTypeHeader = "content-type";
+      String finalFileExtension;
+      if (fileExtension != null && fileExtension.isNotEmpty) {
+        finalFileExtension = fileExtension;
+      } else {
+        final fileTypeHeader = "content-type";
+        finalFileExtension =
+            response.headers[fileTypeHeader]?.split("/").last ?? "mp3";
+      }
 
-      final fileExtensionFromBodyResponseFormat =
-          response.headers[fileTypeHeader]?.split("/").last ?? "mp3";
-
-      final fileName =
-          outputFileName + "." + fileExtensionFromBodyResponseFormat;
+      final fileName = outputFileName + "." + finalFileExtension;
 
       File file = File(
         "${outputDirectory != null ? outputDirectory.path : ''}" +

@@ -135,6 +135,24 @@ interface class OpenAIAudio implements OpenAIAudioBase {
     String outputFileName = "output",
     Directory? outputDirectory,
   }) async {
+    String? fileExtension;
+    if (responseFormat != null) {
+      switch (responseFormat) {
+        case OpenAIAudioSpeechResponseFormat.mp3:
+          fileExtension = "mp3";
+          break;
+        case OpenAIAudioSpeechResponseFormat.opus:
+          fileExtension = "opus";
+          break;
+        case OpenAIAudioSpeechResponseFormat.aac:
+          fileExtension = "aac";
+          break;
+        case OpenAIAudioSpeechResponseFormat.flac:
+          fileExtension = "flac";
+          break;
+      }
+    }
+
     return await OpenAINetworkingClient.postAndExpectFileResponse(
       to: BaseApiUrlBuilder.build(endpoint + "/speech"),
       body: {
@@ -149,6 +167,7 @@ interface class OpenAIAudio implements OpenAIAudioBase {
       },
       outputFileName: outputFileName,
       outputDirectory: outputDirectory,
+      fileExtension: fileExtension,
     );
   }
 }
