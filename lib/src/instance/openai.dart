@@ -14,6 +14,7 @@ import 'files/files.dart';
 import 'fine_tunes/fine_tunes.dart';
 import 'images/images.dart';
 import 'model/model.dart';
+import 'realtime/realtime.dart';
 
 /// The main class of the package. It is a singleton class, so you can only have one instance of it.
 /// You can also access the instance by calling the [OpenAI.instance] getter.
@@ -78,6 +79,10 @@ final class OpenAI extends OpenAIClientBase {
 
   /// The [OpenAIAudio] instance, used to access the audio endpoints.
   OpenAIAudio get audio => OpenAIAudio();
+
+  /// The [OpenAIRealtime] instance, used to access the realtime endpoints.
+  /// This provides real-time bidirectional communication with OpenAI models.
+  OpenAIRealtime get realtime => OpenAIRealtime();
 
   /// The organization id, if set, it will be used in all the requests to the OpenAI API.
   static String? get organization => HeadersBuilder.organization;

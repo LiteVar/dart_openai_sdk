@@ -32,6 +32,9 @@ class OpenAIApisEndpoints {
   /// none.
   final moderation = "/moderations";
 
+  /// Realtime API endpoint.
+  final realtime = "wss://api.openai.com/v1/realtime";
+
   /// {@macro openai_endpoints}
   static const OpenAIApisEndpoints _instance = OpenAIApisEndpoints._();
 
