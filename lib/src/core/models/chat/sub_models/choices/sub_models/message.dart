@@ -22,15 +22,21 @@ final class OpenAIChatCompletionChoiceMessageModel {
   /// The message participent name.
   final String? name;
 
+  /// The [reasoningContent] of the message, contains the AI's reasoning process.
+  final String? reasoningContent;
+
   /// Weither the message have tool calls.
   bool get haveToolCalls => toolCalls != null;
 
   /// Weither the message have content.
   bool get haveContent => content != null && content!.isNotEmpty;
 
+  /// Whether the message have reasoning content or not.
+  bool get haveReasoningContent => reasoningContent != null;
+
   @override
   int get hashCode {
-    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode;
+    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode;
   }
 
   /// {@macro openai_chat_completion_choice_message_model}
@@ -39,6 +45,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
     required this.content,
     this.toolCalls,
     this.name,
+    this.reasoningContent,
   });
 
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionChoiceMessageModel] object.
@@ -59,6 +66,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
               .map((toolCall) => OpenAIResponseToolCall.fromMap(toolCall))
               .toList()
           : null,
+      reasoningContent: json['reasoning_content'],
     );
   }
 
@@ -70,6 +78,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
       if (toolCalls != null && role == OpenAIChatMessageRole.assistant)
         "tool_calls": toolCalls!.map((toolCall) => toolCall.toMap()).toList(),
       if (name != null) "name": name,
+      if (reasoningContent != null) "reasoning_content": reasoningContent,
     };
   }
 
@@ -81,6 +90,9 @@ final class OpenAIChatCompletionChoiceMessageModel {
 
     if (toolCalls != null) {
       str += 'toolCalls: $toolCalls, ';
+    }
+    if (reasoningContent != null) {
+      str += 'reasoningContent: $reasoningContent, ';
     }
     str += ')';
 
@@ -94,7 +106,8 @@ final class OpenAIChatCompletionChoiceMessageModel {
     return other is OpenAIChatCompletionChoiceMessageModel &&
         other.role == role &&
         other.content == content &&
-        other.toolCalls == toolCalls;
+        other.toolCalls == toolCalls &&
+        other.reasoningContent == reasoningContent;
   }
 
   /// Converts a response function message to a request function message, so that it can be used in the next request.
@@ -124,6 +137,7 @@ base class RequestFunctionMessage
     required super.role,
     required super.content,
     required this.toolCallId,
+    super.reasoningContent,
   });
 
   @override
@@ -132,6 +146,7 @@ base class RequestFunctionMessage
       "role": role.name,
       "content": content?.map((toolCall) => toolCall.toMap()).toList(),
       "tool_call_id": toolCallId,
+      if (reasoningContent != null) "reasoning_content": reasoningContent,
     };
   }
 

@@ -15,6 +15,9 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
   /// The [toolCalls] of the message.
   final List<OpenAIResponseToolCall>? toolCalls;
 
+  /// The [reasoningContent] of the message, contains the AI's reasoning process.
+  final String? reasoningContent;
+
   /// Weither the message have a role or not.
   bool get haveToolCalls => toolCalls != null;
 
@@ -24,9 +27,12 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
   /// Weither the message have a content or not.
   bool get haveContent => content != null;
 
+  /// Whether the message have reasoning content or not.
+  bool get haveReasoningContent => reasoningContent != null;
+
   @override
   int get hashCode {
-    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode;
+    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode;
   }
 
   /// {@macro openai_chat_completion_choice_message_model}
@@ -34,6 +40,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
     required this.role,
     required this.content,
     this.toolCalls,
+    this.reasoningContent,
   });
 
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionChoiceMessageModel] object.
@@ -55,6 +62,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
               .map((toolCall) => OpenAIStreamResponseToolCall.fromMap(toolCall))
               .toList()
           : null,
+      reasoningContent: json['reasoning_content'],
     );
   }
 
@@ -64,16 +72,20 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
       "role": role?.name,
       "content": content,
       "tool_calls": toolCalls?.map((toolCall) => toolCall.toMap()).toList(),
+      if (reasoningContent != null) "reasoning_content": reasoningContent,
     };
   }
 
   @override
   String toString() {
-    String str = 'OpenAIChatCompletionChoiceMessageModel('
+    String str = 'OpenAIStreamChatCompletionChoiceDeltaModel('
         'role: $role, '
         'content: $content, ';
     if (toolCalls != null) {
       str += 'toolCalls: $toolCalls, ';
+    }
+    if (reasoningContent != null) {
+      str += 'reasoningContent: $reasoningContent, ';
     }
 
     str += ')';
@@ -88,6 +100,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
     return other is OpenAIStreamChatCompletionChoiceDeltaModel &&
         other.role == role &&
         other.content == content &&
-        other.toolCalls == toolCalls;
+        other.toolCalls == toolCalls &&
+        other.reasoningContent == reasoningContent;
   }
 }

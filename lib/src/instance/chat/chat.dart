@@ -57,6 +57,8 @@ interface class OpenAIChat implements OpenAIChatBase {
   ///
   /// [user] is a unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
   ///
+  /// [enableThinking] enables the reasoning process for certain models that support it. When set to true, the response may include reasoning_content showing the AI's thought process.
+  ///
   /// Returns a [OpenAIChatCompletionModel] object.
   ///
   /// Example:
@@ -87,6 +89,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     bool? logprobs,
     int? topLogprobs,
     http.Client? client,
+    bool? enableThinking,
   }) async {
     return await OpenAINetworkingClient.post(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -112,6 +115,7 @@ interface class OpenAIChat implements OpenAIChatBase {
           "response_format": responseFormat,
         if (logprobs != null) "logprobs": logprobs,
         if (topLogprobs != null) "top_logprobs": topLogprobs,
+        if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIChatCompletionModel.fromMap(response);
@@ -154,6 +158,8 @@ interface class OpenAIChat implements OpenAIChatBase {
   ///
   /// [user] is a unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
   ///
+  /// [enableThinking] enables the reasoning process for certain models that support it. When set to true, the response may include reasoning_content showing the AI's thought process in the delta.
+  ///
   /// Example:
   /// ```dart
   /// final chatStream = OpenAI.instance.chat.createStream(
@@ -186,6 +192,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     String? user,
     http.Client? client,
     Map<String, dynamic>? streamOptions,
+    bool? enableThinking,
   }) {
     return OpenAINetworkingClient.postStream<OpenAIStreamChatCompletionModel>(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -211,6 +218,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         else if (responseFormat is Map<String, dynamic>)
           "response_format": responseFormat,
         if (streamOptions != null && streamOptions.isNotEmpty) "stream_options": streamOptions,
+        if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);
@@ -237,6 +245,7 @@ interface class OpenAIChat implements OpenAIChatBase {
     http.Client? client,
     Object? responseFormat,
     int? seed,
+    bool? enableThinking,
   }) {
     return OpenAINetworkingClient.postStream<OpenAIStreamChatCompletionModel>(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -261,6 +270,7 @@ interface class OpenAIChat implements OpenAIChatBase {
           "response_format": responseFormat.formatJsonData()
         else if (responseFormat is Map<String, dynamic>)
           "response_format": responseFormat,
+        if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);

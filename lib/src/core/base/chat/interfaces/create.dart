@@ -21,6 +21,7 @@ abstract class CreateInterface {
     http.Client? client,
     Object? responseFormat,
     int? seed,
+    bool? enableThinking,
   });
 
   Stream<OpenAIStreamChatCompletionModel> createStream({
@@ -40,6 +41,7 @@ abstract class CreateInterface {
     String? user,
     http.Client? client,
     int? seed,
+    bool? enableThinking,
   });
 
   Stream<OpenAIStreamChatCompletionModel> createRemoteFunctionStream({
@@ -59,5 +61,6 @@ abstract class CreateInterface {
     http.Client? client,
     Object? responseFormat,
     int? seed,
+    bool? enableThinking,
   });
 }
