@@ -70,6 +70,10 @@ abstract class HeadersBuilder {
     return headers;
   }
 
+  /// Gets the additional headers map
+  @internal
+  static Map<String, dynamic> get additionalHeaders => _additionalHeadersToRequests;
+
   /// Will save the given [headers] to the [_additionalHeadersToRequests] map. so it will be used in all requests.
   @internal
   static void includeHeaders(Map<String, dynamic> headers) {

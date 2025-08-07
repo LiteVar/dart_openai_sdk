@@ -15,11 +15,25 @@ import 'fine_tunes/fine_tunes.dart';
 import 'images/images.dart';
 import 'model/model.dart';
 import 'realtime/realtime.dart';
+import 'openai_client.dart';
+import 'chat/context_chat.dart';
+import 'package:http/http.dart' as http;
+import '../core/models/chat/chat.dart';
+import '../core/models/tool/tool.dart';
 
 /// The main class of the package. It is a singleton class, so you can only have one instance of it.
 /// You can also access the instance by calling the [OpenAI.instance] getter.
+/// 
+/// Note: This class now uses OpenAIClient internally for backward compatibility.
+/// It is recommended to use OpenAIClient directly for better multi-instance support.
+/// 
 /// ```dart
+/// // Old way (still supported)
+/// OpenAI.apiKey = "your-key";
 /// final openai = OpenAI.instance;
+/// 
+/// // New recommended way
+/// final client = OpenAIClient(apiKey: "your-key");
 /// ```
 @immutable
 final class OpenAI extends OpenAIClientBase {
@@ -28,6 +42,10 @@ final class OpenAI extends OpenAIClientBase {
 
   /// The API key used to authenticate the requests.
   static String? _internalApiKey;
+
+  /// The internal OpenAIClient instance
+  /// Note: Although marked as @immutable, this field is lazily initialized in actual use
+  OpenAIClient? _internalClient;
 
   /// The singleton instance of [OpenAI], make sure to set your OpenAI API key via the [OpenAI.apiKey] setter before accessing the [OpenAI.instance], otherwise it will throw an [Exception].
   /// A [MissingApiKeyException] will be thrown, if the API key is not set.
@@ -48,6 +66,40 @@ final class OpenAI extends OpenAIClientBase {
 
   // /// {@macro openai_config_is_web}
   // static bool get isWeb => OpenAIConfig.isWeb;
+
+  /// Get the internal OpenAIClient instance
+  /// If the instance does not exist or the configuration has changed, a new instance will be created
+  OpenAIClient get _client {
+    if (_internalClient == null || _shouldRecreateClient()) {
+      _internalClient = OpenAIClient(
+        apiKey: HeadersBuilder.apiKey!,
+        baseUrl: OpenAIConfig.baseUrl,
+        organization: HeadersBuilder.organization,
+        requestsTimeOut: OpenAIConfig.requestsTimeOut,
+        additionalHeaders: HeadersBuilder.additionalHeaders,
+        showLogs: OpenAILogger.isActive,
+        showResponsesLogs: OpenAILogger.showResponsesLogs,
+      );
+    }
+    return _internalClient!;
+  }
+
+  /// Check if a client instance needs to be recreated
+  bool _shouldRecreateClient() {
+    if (_internalClient == null) return true;
+    
+    // Check if the critical configuration has changed
+    final client = _internalClient!;
+    return client.config.apiKey != HeadersBuilder.apiKey ||
+           client.config.baseUrl != OpenAIConfig.baseUrl ||
+           client.config.organization != HeadersBuilder.organization ||
+           client.config.requestsTimeOut != OpenAIConfig.requestsTimeOut;
+  }
+
+  /// Invalidate the internal client, it will be recreated the next time it is accessed
+  void _invalidateClient() {
+    _internalClient = null;
+  }
 
   /// The [OpenAIModel] instance, used to access the model endpoints.
   /// Please, refer to the Models page from the official OpenAI documentation website in order to know what models are available and what's the use case of every model.
@@ -75,7 +127,13 @@ final class OpenAI extends OpenAIClientBase {
   OpenAIModeration get moderation => OpenAIModeration();
 
   /// The [OpenAIChat] instance, used to access the chat endpoints.
-  OpenAIChat get chat => OpenAIChat();
+  /// 
+  /// Note: This now delegates to the internal OpenAIClient instance, but maintains full backward compatibility.
+  OpenAIChat get chat {
+    // Create a wrapper to maintain type compatibility
+    final contextualChat = _client.chat;
+    return _ChatWrapper(contextualChat);
+  }
 
   /// The [OpenAIAudio] instance, used to access the audio endpoints.
   OpenAIAudio get audio => OpenAIAudio();
@@ -95,6 +153,7 @@ final class OpenAI extends OpenAIClientBase {
   static set requestsTimeOut(Duration requestsTimeOut) {
     OpenAIConfig.requestsTimeOut = requestsTimeOut;
     OpenAILogger.requestsTimeoutChanged(requestsTimeOut);
+    _instance._invalidateClient(); // Invalidate the internal client
   }
 
   // /// The HTTP client that will be used to make the requests to the OpenAI API.
@@ -114,11 +173,13 @@ final class OpenAI extends OpenAIClientBase {
   static set apiKey(String apiKey) {
     HeadersBuilder.apiKey = apiKey;
     _internalApiKey = apiKey;
+    _instance._invalidateClient(); // Invalidate the internal client
   }
 
   /// This is used to set the base url of the OpenAI API, by default it is set to [OpenAIConfig.baseUrl].
   static set baseUrl(String baseUrl) {
     OpenAIConfig.baseUrl = baseUrl;
+    _instance._invalidateClient(); // Invalidate the internal client
   }
 
   /// If you have multiple organizations, you can set it's id with this.
@@ -131,6 +192,7 @@ final class OpenAI extends OpenAIClientBase {
   /// ```
   static set organization(String? organizationId) {
     HeadersBuilder.organization = organizationId;
+    _instance._invalidateClient(); // Invalidate the internal client
   }
 
   /// This controls whether to log steps inside the process of making a request, this helps debugging and pointing where something went wrong.
@@ -194,5 +256,144 @@ final class OpenAI extends OpenAIClientBase {
   /// ```
   static void includeHeaders(Map<String, dynamic> headers) {
     HeadersBuilder.includeHeaders(headers);
+  }
+}
+
+/// Internal wrapper class, used to maintain type compatibility
+class _ChatWrapper implements OpenAIChat {
+  final ContextualOpenAIChat _contextualChat;
+
+  _ChatWrapper(this._contextualChat);
+
+  @override
+  String get endpoint => _contextualChat.endpoint;
+
+  @override
+  Future<OpenAIChatCompletionModel> create({
+    required String model,
+    required List<OpenAIChatCompletionChoiceMessageModel> messages,
+    List<OpenAIToolModel>? tools,
+    toolChoice,
+    double? temperature,
+    double? topP,
+    int? n,
+    stop,
+    int? maxTokens,
+    double? presencePenalty,
+    double? frequencyPenalty,
+    Map<String, dynamic>? logitBias,
+    String? user,
+    Object? responseFormat,
+    int? seed,
+    bool? logprobs,
+    int? topLogprobs,
+    http.Client? client,
+    bool? enableThinking,
+  }) {
+    return _contextualChat.create(
+      model: model,
+      messages: messages,
+      tools: tools,
+      toolChoice: toolChoice,
+      temperature: temperature,
+      topP: topP,
+      n: n,
+      stop: stop,
+      maxTokens: maxTokens,
+      presencePenalty: presencePenalty,
+      frequencyPenalty: frequencyPenalty,
+      logitBias: logitBias,
+      user: user,
+      responseFormat: responseFormat,
+      seed: seed,
+      logprobs: logprobs,
+      topLogprobs: topLogprobs,
+      client: client,
+      enableThinking: enableThinking,
+    );
+  }
+
+  @override
+  Stream<OpenAIStreamChatCompletionModel> createStream({
+    required String model,
+    required List<OpenAIChatCompletionChoiceMessageModel> messages,
+    List<OpenAIToolModel>? tools,
+    toolChoice,
+    double? temperature,
+    double? topP,
+    int? n,
+    stop,
+    int? maxTokens,
+    double? presencePenalty,
+    double? frequencyPenalty,
+    Map<String, dynamic>? logitBias,
+    Object? responseFormat,
+    int? seed,
+    String? user,
+    http.Client? client,
+    Map<String, dynamic>? streamOptions,
+    bool? enableThinking,
+  }) {
+    return _contextualChat.createStream(
+      model: model,
+      messages: messages,
+      tools: tools,
+      toolChoice: toolChoice,
+      temperature: temperature,
+      topP: topP,
+      n: n,
+      stop: stop,
+      maxTokens: maxTokens,
+      presencePenalty: presencePenalty,
+      frequencyPenalty: frequencyPenalty,
+      logitBias: logitBias,
+      responseFormat: responseFormat,
+      seed: seed,
+      user: user,
+      client: client,
+      streamOptions: streamOptions,
+      enableThinking: enableThinking,
+    );
+  }
+
+  @override
+  Stream<OpenAIStreamChatCompletionModel> createRemoteFunctionStream({
+    required String model,
+    required List<OpenAIChatCompletionChoiceMessageModel> messages,
+    List<OpenAIToolModel>? tools,
+    toolChoice,
+    double? temperature,
+    double? topP,
+    int? n,
+    stop,
+    int? maxTokens,
+    double? presencePenalty,
+    double? frequencyPenalty,
+    Map<String, dynamic>? logitBias,
+    String? user,
+    http.Client? client,
+    Object? responseFormat,
+    int? seed,
+    bool? enableThinking,
+  }) {
+    return _contextualChat.createRemoteFunctionStream(
+      model: model,
+      messages: messages,
+      tools: tools,
+      toolChoice: toolChoice,
+      temperature: temperature,
+      topP: topP,
+      n: n,
+      stop: stop,
+      maxTokens: maxTokens,
+      presencePenalty: presencePenalty,
+      frequencyPenalty: frequencyPenalty,
+      logitBias: logitBias,
+      user: user,
+      client: client,
+      responseFormat: responseFormat,
+      seed: seed,
+      enableThinking: enableThinking,
+    );
   }
 }
