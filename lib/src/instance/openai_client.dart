@@ -46,7 +46,7 @@ class OpenAIClient extends OpenAIClientBase {
   /// [apiKey] OpenAI API key, must be provided
   /// [baseUrl] API base URL, default is OpenAI official API
   /// [organization] Organization ID (optional)
-  /// [requestsTimeOut] Request timeout, default is 30 seconds
+  /// [requestsTimeOut] Request timeout, default is 120 seconds
   /// [additionalHeaders] Additional request headers
   /// [showLogs] Whether to show debug logs, default is true
   /// [showResponsesLogs] Whether to show response body logs, default is false
@@ -54,7 +54,7 @@ class OpenAIClient extends OpenAIClientBase {
     required String apiKey,
     String baseUrl = 'https://api.openai.com/v1',
     String? organization,
-    Duration requestsTimeOut = const Duration(seconds: 30),
+    Duration? requestsTimeOut,
     Map<String, dynamic> additionalHeaders = const {},
     bool showLogs = true,
     bool showResponsesLogs = false,
@@ -62,7 +62,7 @@ class OpenAIClient extends OpenAIClientBase {
     apiKey: apiKey,
     baseUrl: baseUrl,
     organization: organization,
-    requestsTimeOut: requestsTimeOut,
+    requestsTimeOut: requestsTimeOut ?? const Duration(seconds: 120),
     additionalHeaders: additionalHeaders,
     showLogs: showLogs,
     showResponsesLogs: showResponsesLogs,

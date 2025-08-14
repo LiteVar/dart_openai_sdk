@@ -32,7 +32,7 @@ class OpenAIClientConfig {
     required this.apiKey,
     this.baseUrl = 'https://api.openai.com/v1',
     this.organization,
-    this.requestsTimeOut = const Duration(seconds: 30),
+    this.requestsTimeOut = const Duration(seconds: 120),
     this.additionalHeaders = const {},
     this.showLogs = true,
     this.showResponsesLogs = false,
