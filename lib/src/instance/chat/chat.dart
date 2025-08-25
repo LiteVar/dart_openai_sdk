@@ -57,7 +57,7 @@ interface class OpenAIChat implements OpenAIChatBase {
   ///
   /// [user] is a unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
   ///
-  /// [enableThinking] enables the reasoning process for certain models that support it. When set to true, the response may include reasoning_content showing the AI's thought process.
+  /// [enableThinking] For qwen and deepseek models, enables reasoning process. When set to true, response may include reasoning content showing AI's thought process.
   ///
   /// Returns a [OpenAIChatCompletionModel] object.
   ///
@@ -89,7 +89,8 @@ interface class OpenAIChat implements OpenAIChatBase {
     bool? logprobs,
     int? topLogprobs,
     http.Client? client,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) async {
     return await OpenAINetworkingClient.post(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -103,7 +104,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -116,6 +117,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (logprobs != null) "logprobs": logprobs,
         if (topLogprobs != null) "top_logprobs": topLogprobs,
         if (enableThinking != null) "enable_thinking": enableThinking,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort, // OpenAI reasoning parameters
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIChatCompletionModel.fromMap(response);
@@ -158,7 +160,7 @@ interface class OpenAIChat implements OpenAIChatBase {
   ///
   /// [user] is a unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
   ///
-  /// [enableThinking] enables the reasoning process for certain models that support it. When set to true, the response may include reasoning_content showing the AI's thought process in the delta.
+  /// [enableThinking] For qwen and deepseek models, enables reasoning process. When set to true, response delta may include reasoning content showing AI's thought process.
   ///
   /// Example:
   /// ```dart
@@ -192,7 +194,8 @@ interface class OpenAIChat implements OpenAIChatBase {
     String? user,
     http.Client? client,
     Map<String, dynamic>? streamOptions,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     return OpenAINetworkingClient.postStream<OpenAIStreamChatCompletionModel>(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -207,7 +210,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -219,6 +222,7 @@ interface class OpenAIChat implements OpenAIChatBase {
           "response_format": responseFormat,
         if (streamOptions != null && streamOptions.isNotEmpty) "stream_options": streamOptions,
         if (enableThinking != null) "enable_thinking": enableThinking,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort, // OpenAI reasoning parameters
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);
@@ -245,7 +249,8 @@ interface class OpenAIChat implements OpenAIChatBase {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     return OpenAINetworkingClient.postStream<OpenAIStreamChatCompletionModel>(
       to: BaseApiUrlBuilder.build(endpoint),
@@ -260,7 +265,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -271,6 +276,7 @@ interface class OpenAIChat implements OpenAIChatBase {
         else if (responseFormat is Map<String, dynamic>)
           "response_format": responseFormat,
         if (enableThinking != null) "enable_thinking": enableThinking,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort, // OpenAI reasoning parameters
       },
       onSuccess: (Map<String, dynamic> response) {
         return OpenAIStreamChatCompletionModel.fromMap(response);

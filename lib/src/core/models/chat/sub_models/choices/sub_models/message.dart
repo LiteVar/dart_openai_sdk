@@ -23,7 +23,12 @@ final class OpenAIChatCompletionChoiceMessageModel {
   final String? name;
 
   /// The [reasoningContent] of the message, contains the AI's reasoning process.
+  /// Used for backward compatibility with qwen/deepseek APIs.
   final String? reasoningContent;
+
+  /// The [reasoningTokens] of the message, contains the AI's reasoning process.
+  /// Used for OpenAI o3 standard format.
+  final String? reasoningTokens;
 
   /// Weither the message have tool calls.
   bool get haveToolCalls => toolCalls != null;
@@ -32,11 +37,11 @@ final class OpenAIChatCompletionChoiceMessageModel {
   bool get haveContent => content != null && content!.isNotEmpty;
 
   /// Whether the message have reasoning content or not.
-  bool get haveReasoningContent => reasoningContent != null;
+  bool get haveReasoningContent => reasoningContent != null || reasoningTokens != null;
 
   @override
   int get hashCode {
-    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode;
+    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode ^ reasoningTokens.hashCode;
   }
 
   /// {@macro openai_chat_completion_choice_message_model}
@@ -46,6 +51,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
     this.toolCalls,
     this.name,
     this.reasoningContent,
+    this.reasoningTokens,
   });
 
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionChoiceMessageModel] object.
@@ -67,6 +73,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
               .toList()
           : null,
       reasoningContent: json['reasoning_content'],
+      reasoningTokens: json['reasoning_tokens'],
     );
   }
 
@@ -79,6 +86,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
         "tool_calls": toolCalls!.map((toolCall) => toolCall.toMap()).toList(),
       if (name != null) "name": name,
       if (reasoningContent != null) "reasoning_content": reasoningContent,
+      if (reasoningTokens != null) "reasoning_tokens": reasoningTokens,
     };
   }
 
@@ -94,6 +102,9 @@ final class OpenAIChatCompletionChoiceMessageModel {
     if (reasoningContent != null) {
       str += 'reasoningContent: $reasoningContent, ';
     }
+    if (reasoningTokens != null) {
+      str += 'reasoningTokens: $reasoningTokens, ';
+    }
     str += ')';
 
     return str;
@@ -107,7 +118,8 @@ final class OpenAIChatCompletionChoiceMessageModel {
         other.role == role &&
         other.content == content &&
         other.toolCalls == toolCalls &&
-        other.reasoningContent == reasoningContent;
+        other.reasoningContent == reasoningContent &&
+        other.reasoningTokens == reasoningTokens;
   }
 
   /// Converts a response function message to a request function message, so that it can be used in the next request.
@@ -138,6 +150,7 @@ base class RequestFunctionMessage
     required super.content,
     required this.toolCallId,
     super.reasoningContent,
+    super.reasoningTokens,
   });
 
   @override
@@ -147,6 +160,7 @@ base class RequestFunctionMessage
       "content": content?.map((toolCall) => toolCall.toMap()).toList(),
       "tool_call_id": toolCallId,
       if (reasoningContent != null) "reasoning_content": reasoningContent,
+      if (reasoningTokens != null) "reasoning_tokens": reasoningTokens,
     };
   }
 

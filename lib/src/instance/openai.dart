@@ -288,7 +288,8 @@ class _ChatWrapper implements OpenAIChat {
     bool? logprobs,
     int? topLogprobs,
     http.Client? client,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     return _contextualChat.create(
       model: model,
@@ -309,6 +310,7 @@ class _ChatWrapper implements OpenAIChat {
       logprobs: logprobs,
       topLogprobs: topLogprobs,
       client: client,
+      reasoningEffort: reasoningEffort,
       enableThinking: enableThinking,
     );
   }
@@ -332,7 +334,8 @@ class _ChatWrapper implements OpenAIChat {
     String? user,
     http.Client? client,
     Map<String, dynamic>? streamOptions,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     return _contextualChat.createStream(
       model: model,
@@ -352,6 +355,7 @@ class _ChatWrapper implements OpenAIChat {
       user: user,
       client: client,
       streamOptions: streamOptions,
+      reasoningEffort: reasoningEffort,
       enableThinking: enableThinking,
     );
   }
@@ -374,7 +378,8 @@ class _ChatWrapper implements OpenAIChat {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     return _contextualChat.createRemoteFunctionStream(
       model: model,
@@ -394,6 +399,7 @@ class _ChatWrapper implements OpenAIChat {
       responseFormat: responseFormat,
       seed: seed,
       enableThinking: enableThinking,
+      reasoningEffort: reasoningEffort,
     );
   }
 }

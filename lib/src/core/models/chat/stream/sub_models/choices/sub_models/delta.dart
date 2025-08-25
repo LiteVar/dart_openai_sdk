@@ -16,7 +16,12 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
   final List<OpenAIResponseToolCall>? toolCalls;
 
   /// The [reasoningContent] of the message, contains the AI's reasoning process.
+  /// Used for backward compatibility with qwen/deepseek APIs.
   final String? reasoningContent;
+
+  /// The [reasoningTokens] of the message, contains the AI's reasoning process.
+  /// Used for OpenAI o3 standard format.
+  final String? reasoningTokens;
 
   /// Weither the message have a role or not.
   bool get haveToolCalls => toolCalls != null;
@@ -28,11 +33,11 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
   bool get haveContent => content != null;
 
   /// Whether the message have reasoning content or not.
-  bool get haveReasoningContent => reasoningContent != null;
+  bool get haveReasoningContent => reasoningContent != null || reasoningTokens != null;
 
   @override
   int get hashCode {
-    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode;
+    return role.hashCode ^ content.hashCode ^ toolCalls.hashCode ^ reasoningContent.hashCode ^ reasoningTokens.hashCode;
   }
 
   /// {@macro openai_chat_completion_choice_message_model}
@@ -41,6 +46,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
     required this.content,
     this.toolCalls,
     this.reasoningContent,
+    this.reasoningTokens,
   });
 
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionChoiceMessageModel] object.
@@ -63,6 +69,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
               .toList()
           : null,
       reasoningContent: json['reasoning_content'],
+      reasoningTokens: json['reasoning_tokens'],
     );
   }
 
@@ -73,6 +80,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
       "content": content,
       "tool_calls": toolCalls?.map((toolCall) => toolCall.toMap()).toList(),
       if (reasoningContent != null) "reasoning_content": reasoningContent,
+      if (reasoningTokens != null) "reasoning_tokens": reasoningTokens,
     };
   }
 
@@ -86,6 +94,9 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
     }
     if (reasoningContent != null) {
       str += 'reasoningContent: $reasoningContent, ';
+    }
+    if (reasoningTokens != null) {
+      str += 'reasoningTokens: $reasoningTokens, ';
     }
 
     str += ')';
@@ -101,6 +112,7 @@ final class OpenAIStreamChatCompletionChoiceDeltaModel {
         other.role == role &&
         other.content == content &&
         other.toolCalls == toolCalls &&
-        other.reasoningContent == reasoningContent;
+        other.reasoningContent == reasoningContent &&
+        other.reasoningTokens == reasoningTokens;
   }
 }

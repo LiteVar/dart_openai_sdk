@@ -48,7 +48,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
   /// [logprobs] Whether to return log probabilities
   /// [topLogprobs] The number of top log probabilities
   /// [client] Custom HTTP client
-  /// [enableThinking] Whether to enable thinking process
+  /// [enableThinking] For qwen and deepseek models, whether to enable thinking process
   @override
   Future<OpenAIChatCompletionModel> create({
     required String model,
@@ -69,7 +69,8 @@ class ContextualOpenAIChat implements OpenAIChatBase {
     bool? logprobs,
     int? topLogprobs,
     http.Client? client,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) async {
     if (config.showLogs) {
       OpenAILogger.logEndpoint(endpoint);
@@ -88,7 +89,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -100,6 +101,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
           "response_format": responseFormat,
         if (logprobs != null) "logprobs": logprobs,
         if (topLogprobs != null) "top_logprobs": topLogprobs,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort,
         if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {
@@ -130,7 +132,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
   /// [user] The user identifier
   /// [client] Custom HTTP client
   /// [streamOptions] Stream options
-  /// [enableThinking] Whether to enable thinking process
+  /// [enableThinking] For qwen and deepseek models, whether to enable thinking process
   @override
   Stream<OpenAIStreamChatCompletionModel> createStream({
     required String model,
@@ -150,7 +152,8 @@ class ContextualOpenAIChat implements OpenAIChatBase {
     String? user,
     http.Client? client,
     Map<String, dynamic>? streamOptions,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     if (config.showLogs) {
       OpenAILogger.logEndpoint(endpoint);
@@ -170,7 +173,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -181,6 +184,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
         else if (responseFormat is Map<String, dynamic>)
           "response_format": responseFormat,
         if (streamOptions != null && streamOptions.isNotEmpty) "stream_options": streamOptions,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort,
         if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {
@@ -210,7 +214,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
   /// [client] Custom HTTP client
   /// [responseFormat] The response format
   /// [seed] The random seed
-  /// [enableThinking] Whether to enable thinking process
+  /// [enableThinking] For qwen and deepseek models, whether to enable thinking process
   @override
   Stream<OpenAIStreamChatCompletionModel> createRemoteFunctionStream({
     required String model,
@@ -229,7 +233,8 @@ class ContextualOpenAIChat implements OpenAIChatBase {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   }) {
     if (config.showLogs) {
       OpenAILogger.logEndpoint(endpoint);
@@ -249,7 +254,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
         if (topP != null) "top_p": topP,
         if (n != null) "n": n,
         if (stop != null) "stop": stop,
-        if (maxTokens != null) "max_tokens": maxTokens,
+        if (maxTokens != null) "max_completion_tokens": maxTokens,
         if (presencePenalty != null) "presence_penalty": presencePenalty,
         if (frequencyPenalty != null) "frequency_penalty": frequencyPenalty,
         if (logitBias != null) "logit_bias": logitBias,
@@ -259,6 +264,7 @@ class ContextualOpenAIChat implements OpenAIChatBase {
           "response_format": responseFormat.formatJsonData()
         else if (responseFormat is Map<String, dynamic>)
           "response_format": responseFormat,
+        if (reasoningEffort != null) "reasoning_effort": reasoningEffort,
         if (enableThinking != null) "enable_thinking": enableThinking,
       },
       onSuccess: (Map<String, dynamic> response) {

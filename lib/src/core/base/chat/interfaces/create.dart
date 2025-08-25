@@ -21,7 +21,8 @@ abstract class CreateInterface {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   });
 
   Stream<OpenAIStreamChatCompletionModel> createStream({
@@ -41,7 +42,8 @@ abstract class CreateInterface {
     String? user,
     http.Client? client,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   });
 
   Stream<OpenAIStreamChatCompletionModel> createRemoteFunctionStream({
@@ -61,6 +63,7 @@ abstract class CreateInterface {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    bool? enableThinking,
+    String? reasoningEffort, // OpenAI reasoning parameters
+    bool? enableThinking, // For qwen and deepseek models
   });
 }

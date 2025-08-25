@@ -93,7 +93,7 @@ OpenAI.organization = "ORGANIZATION ID";
 
 ### Settings a default request timeout
 
-- The package make use if the [http](https://pub.dev/packages/http) to make requests, this one have a default timeout of 30 seconds, this means that any requests that takes more than 30 seconds will be cancelled, and a exception will be thrown, to chenge that you will need to set your own default timeout:
+- The package make use if the [http](https://pub.dev/packages/http) to make requests, this one have a default timeout of 120 seconds, this means that any requests that takes more than 120 seconds will be cancelled, and a exception will be thrown, to chenge that you will need to set your own default timeout:
 
 ```dart
 OpenAI.requestsTimeOut = Duration(seconds: 60); // 60 seconds.
@@ -310,6 +310,118 @@ chatStream.listen(
     print("Done");
   },
 );
+```
+
+### OpenAI Reasoning Models
+
+The package provides full support for OpenAI's reasoning models, which offer advanced reasoning capabilities with transparent thought processes.  
+
+⚠️ Note: Since the chat completion API does not support `reasoning_content`, this feature may not work as expected. See [reference](https://github.com/openai/openai-python/pull/2192#issuecomment-2722436716).
+
+#### Basic Usage
+
+```dart
+final userMessage = OpenAIChatCompletionChoiceMessageModel(
+  content: [
+    OpenAIChatCompletionChoiceMessageContentItemModel.text(
+      "Explain quantum entanglement and its applications in quantum computing.",
+    ),
+  ],
+  role: OpenAIChatMessageRole.user,
+);
+
+// Non-streaming reasoning
+final response = await OpenAI.instance.chat.create(
+  model: "o1",  // or "o1-mini"
+  messages: [userMessage],
+  
+  reasoningEffort: "high",        // OpenAI reasoning parameters: minimal, low, medium, high
+  
+  temperature: 0.7,
+  maxTokens: 1500,
+);
+
+final message = response.choices.first.message;
+
+// Access reasoning process (compatible with both formats)
+if (message.haveReasoningContent) {
+  final reasoning = message.reasoningTokens ?? message.reasoningContent;
+  print('🧠 Reasoning: $reasoning');
+}
+
+// Access final answer
+if (message.haveContent) {
+  final answer = message.content!
+      .where((item) => item.text != null)
+      .map((item) => item.text!)
+      .join();
+  print('💡 Answer: $answer');
+}
+```
+
+#### Streaming Reasoning
+
+```dart
+final chatStream = OpenAI.instance.chat.createStream(
+  model: "o1-mini",
+  messages: [userMessage],
+  
+  reasoningEffort: "medium",      // OpenAI reasoning parameters
+);
+
+String reasoning = '';
+String answer = '';
+
+await for (final chunk in chatStream) {
+  if (chunk.choices.isEmpty) continue;
+  
+  final delta = chunk.choices.first.delta;
+  
+  // Real-time reasoning process
+  if (delta.haveReasoningContent) {
+    final reasoningPart = delta.reasoningTokens ?? delta.reasoningContent;
+    if (reasoningPart != null && reasoningPart.isNotEmpty) {
+      print('🧠 [Thinking] $reasoningPart');
+      reasoning += reasoningPart;
+    }
+  }
+  
+  // Real-time answer
+  if (delta.haveContent && delta.content != null) {
+    final answerPart = delta.content!
+        .where((item) => item != null)
+        .map((item) => item!.text ?? '')
+        .join();
+    
+    if (answerPart.isNotEmpty) {
+      print('💡 [Answer] $answerPart');
+      answer += answerPart;
+    }
+  }
+}
+```
+
+#### Horizontal Compatibility
+
+The package maintains horizontal compatibility with existing reasoning models.
+
+```dart
+// Works with Qwen3, DeepSeek R1, and other models
+final chatStream = OpenAI.instance.chat.createStream(
+  model: "qwen3",  // or "deepseek-r1"
+  messages: [userMessage],
+  enableThinking: true,  // For qwen and deepseek models
+);
+
+// Both reasoningContent and reasoningTokens are supported
+await for (final chunk in chatStream) {
+  final delta = chunk.choices.first.delta;
+  if (delta.haveReasoningContent) {
+    // Automatically handles both formats
+    final reasoning = delta.reasoningTokens ?? delta.reasoningContent;
+    print('Reasoning: $reasoning');
+  }
+}
 ```
 
 ### Tools ( new implementation of functions calling)
