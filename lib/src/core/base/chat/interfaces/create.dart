@@ -21,7 +21,7 @@ abstract class CreateInterface {
     http.Client? client,
     Object? responseFormat,
     int? seed,
-    String? reasoningEffort, // OpenAI reasoning parameters
+    String? reasoningEffort, // OpenAI reasoning parameters. `minimal`, `low`, `medium`, and `high`: low favored speed and fewer tokens, while high favored more thorough reasoning.
     bool? enableThinking, // For qwen and deepseek models
   });
 
