@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.0.0
+- RealTime API support
+- reasoningContent field support
+
 ## 5.2.1
 - support enum for object type in JSON schema
 

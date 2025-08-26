@@ -1,6 +1,6 @@
 name: dart_openai_sdk
 description: A Flutter/Dart SDK for OpenAI API by LitaVar.
-version: 5.2.1
+version: 6.0.0
 homepage: https://github.com/LiteVar/dart_openai_sdk
 repository: https://github.com/LiteVar/dart_openai_sdk
 documentation: https://github.com/LiteVar/dart_openai_sdk/blob/main/README.md
