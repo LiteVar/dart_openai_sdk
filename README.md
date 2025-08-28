@@ -30,6 +30,7 @@ A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 - [x] [Chat (chatGPT)](#chat-chatgpt)
   - [x] With `Stream` responses.
   - [x] [Tools](#tools--new-implementation-of-functions-calling)
+- [x] [RealTime](#realtime)
 - [x] [Edits](#edits)
 - [x] [Images](#images)
 - [x] [Embeddings](#embeddings)
@@ -494,6 +495,78 @@ if (message.haveToolCalls) {
 ```
 
 Learn more from [here](https://platform.openai.com/docs/api-reference/chat/create).
+
+## RealTime
+
+### Create session
+
+Create an ephemeral API token for use in client-side applications with the Realtime API.
+
+```dart
+void main() async {
+
+  OpenAI.apiKey = Env.apiKey;
+
+  OpenAIRealtime realtime = OpenAI.instance.realtime;
+
+  try {
+    // Connect to realtime API
+    print('🔌 Connecting to OpenAI Realtime API...');
+    await realtime.connect(
+      model: RealtimeConfig.model,
+      debug: true,
+    );
+
+    print('✅ Connection established successfully!');
+
+    // Configure session with audio input transcription support
+    final sessionConfig = OpenAIRealtimeSessionConfigModel(
+      modalities: [OpenAIRealtimeModalityModel.text, OpenAIRealtimeModalityModel.audio],
+      instructions: RealtimeConfig.instructions,
+      inputAudioTranscription: const OpenAIRealtimeTranscriptionConfigModel(
+          model: 'whisper-1'
+      ),
+      turnDetection: OpenAIRealtimeTurnDetectionModel(
+        type: OpenAIRealtimeTurnDetectionTypeModel.serverVad,
+        threshold: RealtimeConfig.threshold,
+        silenceDurationMs: RealtimeConfig.silenceDurationMs,
+      ),
+      toolChoice: const OpenAIRealtimeToolChoiceModel.auto(),
+    );
+    await realtime.updateSession(sessionConfig: sessionConfig);
+    print('✅ Session configuration updated successfully');
+
+    // Setup event listeners
+    _setupEventListeners(realtime);
+
+    // Add tools
+    _addTools(realtime);
+
+    // Wait for connection stabilization
+    await Future.delayed(RealtimeConfig.connectionStabilizationDelay);
+
+    // Demonstrate Base64 audio functionality
+    await _demonstrateBase64Audio(realtime);
+
+    // Wait for processing completion
+    await Future.delayed(RealtimeConfig.processingDelay);
+
+    // Disconnect
+    await realtime.disconnect();
+    print('✅ Connection closed successfully');
+
+  } catch (e) {
+    print('❌ Error: $e');
+    try {
+      await realtime.disconnect();
+    } catch (disconnectError) {
+      print('❌ Failed to disconnect: $disconnectError');
+    }
+  }
+}
+```
+
+[Learn More From Here.](https://platform.openai.com/docs/api-reference/realtime)
 
 ## Edits
 
