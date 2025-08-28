@@ -27,7 +27,7 @@ A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 - [x] [Models](#models)
 - [x] [Completions](#completions)
   - [x] With `Stream` responses.
-- [x] [Chat (chatGPT)](#chat-chatgpt)
+- [x] [Chat (ChatCompletions)](#chat-chatcompletions)
   - [x] With `Stream` responses.
   - [x] [Tools](#tools--new-implementation-of-functions-calling)
 - [x] [RealTime](#realtime)
@@ -222,7 +222,7 @@ completionStream.listen((event) {
 
 [Learn More From Here.](https://platform.openai.com/docs/api-reference/completions)
 
-## Chat (ChatGPT)
+## Chat (ChatCompletions)
 
 ### Create chat completion
 
