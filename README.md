@@ -3,8 +3,8 @@
 A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 
 - **NOT** OpenAI official
-- **NEW:** Chat Completion json_schema Support.
-- **TODO:** RealTime API Support.
+- **NEW:** RealTime API Support.
+- **TODO:** Response API.
 - **fork** from [dart_openai](https://github.com/anasfik/openai) and continue maintained by [LiteVar](https://github.com/LiteVar).
 
 ## Note
