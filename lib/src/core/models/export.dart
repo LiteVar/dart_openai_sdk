@@ -11,4 +11,5 @@ export 'moderation/moderation.dart';
 export '../enum.dart';
 export 'chat/chat.dart';
 export 'audio/audio.dart';
+export 'audio/stream_event.dart';
 export 'realtime/realtime.dart';

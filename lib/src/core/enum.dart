@@ -16,6 +16,6 @@ enum OpenAIAudioTimestampGranularity { word, segment }
 
 enum OpenAIAudioResponseFormat { json, text, srt, verbose_json, vtt }
 
-enum OpenAIAudioSpeechResponseFormat { mp3, opus, aac, flac }
+enum OpenAIAudioSpeechResponseFormat { mp3, opus, aac, flac, wav, pcm }
 
 enum OpenAIChatMessageRole { system, user, assistant, function, tool }

@@ -670,4 +670,148 @@ abstract class OpenAINetworkingClient {
   static http.Client _streamingHttpClient() {
     return createClient();
   }
+
+  /// 流式 POST 请求，返回原始字节流
+  /// 用于 TTS 流式响应，返回音频数据块
+  static Stream<List<int>> postStreamBytes({
+    required String to,
+    required Map<String, dynamic> body,
+    http.Client? client,
+  }) async* {
+    final clientForUse = client ?? _streamingHttpClient();
+    
+    try {
+      OpenAILogger.logStartRequest(to);
+      
+      final uri = Uri.parse(to);
+      final headers = HeadersBuilder.build();
+      final request = http.Request(OpenAIStrings.postMethod, uri);
+      request.headers.addAll(headers);
+      request.body = jsonEncode(body);
+
+      final response = await clientForUse.send(request);
+      
+      OpenAILogger.requestToWithStatusCode(to, response.statusCode);
+
+      if (response.statusCode == 200) {
+        OpenAILogger.startReadStreamResponse();
+        await for (final chunk in response.stream) {
+          yield chunk;
+        }
+        OpenAILogger.streamResponseDone();
+      } else {
+        // 读取错误响应
+        final errorBody = await response.stream.bytesToString();
+        OpenAILogger.logResponseBody(errorBody);
+        
+        if (tryDecodedToMap(errorBody)) {
+          final decodedBody = decodeToMap(errorBody);
+          if (doesErrorExists(decodedBody)) {
+            final error = decodedBody[OpenAIStrings.errorFieldKey] as Map<String, dynamic>;
+            final message = error[OpenAIStrings.messageFieldKey] as String;
+            throw RequestFailedException(message, response.statusCode);
+          }
+        }
+        throw RequestFailedException('HTTP ${response.statusCode}: $errorBody', response.statusCode);
+      }
+    } finally {
+      if (client == null) {
+        clientForUse.close();
+      }
+    }
+  }
+
+  /// 流式文件上传，返回 SSE 事件流
+  /// 用于 STT 流式响应，返回转写事件
+  static Stream<T> fileUploadStream<T>({
+    required String to,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required Map<String, String> body,
+    required File file,
+    http.Client? client,
+  }) async* {
+    final clientForUse = client ?? _streamingHttpClient();
+    
+    try {
+      OpenAILogger.logStartRequest(to);
+
+      final uri = Uri.parse(to);
+      final request = http.MultipartRequest(OpenAIStrings.postMethod, uri);
+      request.headers.addAll(HeadersBuilder.build());
+
+      final multiPartFile = await http.MultipartFile.fromPath("file", file.path);
+      request.files.add(multiPartFile);
+      request.fields.addAll(body);
+
+      final response = await clientForUse.send(request);
+      
+      OpenAILogger.requestToWithStatusCode(to, response.statusCode);
+
+      if (response.statusCode == 200) {
+        OpenAILogger.startReadStreamResponse();
+        
+        // 处理 SSE 流
+        String buffer = '';
+        await for (final chunk in response.stream.transform(utf8.decoder)) {
+          buffer += chunk;
+          
+          // 按行分割处理 SSE 事件
+          final lines = buffer.split('\n');
+          buffer = lines.last; // 保留未完成的行
+          
+          for (int i = 0; i < lines.length - 1; i++) {
+            final line = lines[i].trim();
+            if (line.isEmpty) continue;
+            
+            if (line.startsWith(OpenAIStrings.streamResponseStart)) {
+              final data = line.substring(6).trim();
+              if (data == OpenAIStrings.streamResponseEnd || data.contains(OpenAIStrings.streamResponseEnd)) {
+                OpenAILogger.streamResponseDone();
+                return;
+              }
+              
+              try {
+                final decoded = jsonDecode(data) as Map<String, dynamic>;
+                yield onSuccess(decoded);
+              } catch (e) {
+                // 忽略解析错误，继续处理下一行
+                continue;
+              }
+            }
+          }
+        }
+        
+        // 处理最后的缓冲区
+        if (buffer.trim().isNotEmpty && buffer.startsWith(OpenAIStrings.streamResponseStart)) {
+          final data = buffer.substring(6).trim();
+          if (data.isNotEmpty && data != OpenAIStrings.streamResponseEnd && !data.contains(OpenAIStrings.streamResponseEnd)) {
+            try {
+              final decoded = jsonDecode(data) as Map<String, dynamic>;
+              yield onSuccess(decoded);
+            } catch (_) {}
+          }
+        }
+        
+        OpenAILogger.streamResponseDone();
+      } else {
+        // 读取错误响应
+        final errorBody = await response.stream.bytesToString();
+        OpenAILogger.logResponseBody(errorBody);
+        
+        if (tryDecodedToMap(errorBody)) {
+          final decodedBody = decodeToMap(errorBody);
+          if (doesErrorExists(decodedBody)) {
+            final error = decodedBody[OpenAIStrings.errorFieldKey] as Map<String, dynamic>;
+            final message = error[OpenAIStrings.messageFieldKey] as String;
+            throw RequestFailedException(message, response.statusCode);
+          }
+        }
+        throw RequestFailedException('HTTP ${response.statusCode}: $errorBody', response.statusCode);
+      }
+    } finally {
+      if (client == null) {
+        clientForUse.close();
+      }
+    }
+  }
 }
