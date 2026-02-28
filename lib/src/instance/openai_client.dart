@@ -51,7 +51,7 @@ class OpenAIClient extends OpenAIClientBase {
   /// [showLogs] Whether to show debug logs, default is true
   /// [showResponsesLogs] Whether to show response body logs, default is false
   OpenAIClient({
-    required String apiKey,
+    String? apiKey,
     String baseUrl = 'https://api.openai.com/v1',
     String? organization,
     Duration? requestsTimeOut,
@@ -173,9 +173,12 @@ class OpenAIClient extends OpenAIClientBase {
   // === Configuration accessors ===
 
   /// Get the current API key (hide sensitive part)
-  String get apiKey => config.apiKey.length > 7 
-      ? '${config.apiKey.substring(0, 7)}***'
-      : '***';
+  String? get apiKey {
+    if (config.apiKey == null) return null;
+    return config.apiKey!.length > 7
+        ? '${config.apiKey!.substring(0, 7)}***'
+        : '***';
+  }
 
   /// Get the current base URL
   String get baseUrl => config.baseUrl;

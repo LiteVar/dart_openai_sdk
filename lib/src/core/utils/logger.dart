@@ -76,7 +76,11 @@ abstract final class OpenAILogger {
 
   /// Logs that an api key is being set, if the logger is active.
   static void logAPIKey([String? apiKey]) {
-    if (apiKey != null && isValidApiKey(apiKey)) {
+    if (apiKey == null) {
+      log("api key is null, Authorization header will not be set");
+    } else if (apiKey.isEmpty) {
+      log("api key is empty string, Authorization header will be Bearer with empty value");
+    } else if (isValidApiKey(apiKey)) {
       final hiddenApiKey = apiKey.replaceRange(0, apiKey.length - 10, '****');
       log("api key set to $hiddenApiKey");
     } else {

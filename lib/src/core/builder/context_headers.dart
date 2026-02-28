@@ -25,7 +25,7 @@ abstract class ContextualHeadersBuilder {
     // Build the base headers
     Map<String, String> headers = <String, String>{
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${config.apiKey}',
+      if (config.apiKey != null) 'Authorization': 'Bearer ${config.apiKey}',
     };
 
     // Add organization header (if set)
@@ -63,7 +63,7 @@ abstract class ContextualHeadersBuilder {
     config.validate();
 
     Map<String, String> headers = <String, String>{
-      'Authorization': 'Bearer ${config.apiKey}',
+      if (config.apiKey != null) 'Authorization': 'Bearer ${config.apiKey}',
     };
 
     if (config.organization != null && config.organization!.isNotEmpty) {
@@ -91,7 +91,7 @@ abstract class ContextualHeadersBuilder {
   /// Validate if the headers contain the necessary authentication information
   @internal
   static bool validateHeaders(Map<String, String> headers) {
-    return headers.containsKey('Authorization') &&
-        headers['Authorization']?.startsWith('Bearer ') == true;
+    if (!headers.containsKey('Authorization')) return true;
+    return headers['Authorization']?.startsWith('Bearer ') == true;
   }
 }

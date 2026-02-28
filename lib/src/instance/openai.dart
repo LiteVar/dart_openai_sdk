@@ -4,7 +4,6 @@ import 'package:dart_openai_sdk/src/instance/moderations/moderations.dart';
 import '../core/base/openai_client/base.dart';
 import '../core/builder/headers.dart';
 import '../core/constants/config.dart';
-import '../core/exceptions/api_key_not_set.dart';
 import '../core/utils/logger.dart';
 import 'audio/audio.dart';
 import 'chat/chat.dart';
@@ -40,24 +39,12 @@ final class OpenAI extends OpenAIClientBase {
   /// The singleton instance of [OpenAI].
   static final OpenAI _instance = OpenAI._();
 
-  /// The API key used to authenticate the requests.
-  static String? _internalApiKey;
-
   /// The internal OpenAIClient instance
   /// Note: Although marked as @immutable, this field is lazily initialized in actual use
   OpenAIClient? _internalClient;
 
-  /// The singleton instance of [OpenAI], make sure to set your OpenAI API key via the [OpenAI.apiKey] setter before accessing the [OpenAI.instance], otherwise it will throw an [Exception].
-  /// A [MissingApiKeyException] will be thrown, if the API key is not set.
+  /// The singleton instance of [OpenAI].
   static OpenAI get instance {
-    if (_internalApiKey == null) {
-      throw MissingApiKeyException("""
-      You must set the api key before accessing the instance of this class.
-      Example:
-      OpenAI.apiKey = "Your API Key";
-      """);
-    }
-
     return _instance;
   }
 
@@ -72,7 +59,7 @@ final class OpenAI extends OpenAIClientBase {
   OpenAIClient get _client {
     if (_internalClient == null || _shouldRecreateClient()) {
       _internalClient = OpenAIClient(
-        apiKey: HeadersBuilder.apiKey!,
+        apiKey: HeadersBuilder.apiKey,
         baseUrl: OpenAIConfig.baseUrl,
         organization: HeadersBuilder.organization,
         requestsTimeOut: OpenAIConfig.requestsTimeOut,
@@ -170,10 +157,9 @@ final class OpenAI extends OpenAIClientBase {
   /// ```dart
   /// OpenAI.apiKey = "YOUR_API_KEY";
   /// ```
-  static set apiKey(String apiKey) {
+  static set apiKey(String? apiKey) {
     HeadersBuilder.apiKey = apiKey;
-    _internalApiKey = apiKey;
-    _instance._invalidateClient(); // Invalidate the internal client
+    _instance._invalidateClient();
   }
 
   /// This is used to set the base url of the OpenAI API, by default it is set to [OpenAIConfig.baseUrl].

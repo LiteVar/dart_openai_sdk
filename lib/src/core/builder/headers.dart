@@ -55,16 +55,11 @@ abstract class HeadersBuilder {
       'Content-Type': 'application/json',
     };
 
-    assert(
-      apiKey != null,
-      """
-      You must set the API key before making building any headers for a request.""",
-    );
     headers = {
       ...headers,
       ..._additionalHeadersToRequests,
       if (isOrganizationSet) 'OpenAI-Organization': organization!,
-      "Authorization": "Bearer $apiKey",
+      if (apiKey != null) "Authorization": "Bearer $apiKey",
     };
 
     return headers;

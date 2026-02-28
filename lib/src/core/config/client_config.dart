@@ -6,8 +6,8 @@ import 'package:meta/meta.dart';
 /// {@endtemplate}
 @immutable
 class OpenAIClientConfig {
-  /// OpenAI API key
-  final String apiKey;
+  /// OpenAI API key (null means no Authorization header, empty string sends empty Bearer token)
+  final String? apiKey;
 
   /// API base url, default is OpenAI official API
   final String baseUrl;
@@ -29,7 +29,7 @@ class OpenAIClientConfig {
 
   /// {@macro openai_client_config}
   const OpenAIClientConfig({
-    required this.apiKey,
+    this.apiKey,
     this.baseUrl = 'https://api.openai.com/v1',
     this.organization,
     this.requestsTimeOut = const Duration(seconds: 120),
@@ -61,9 +61,6 @@ class OpenAIClientConfig {
 
   /// Validate the config
   void validate() {
-    if (apiKey.isEmpty) {
-      throw ArgumentError('API key cannot be empty');
-    }
     if (baseUrl.isEmpty) {
       throw ArgumentError('Base URL cannot be empty');
     }
@@ -101,8 +98,13 @@ class OpenAIClientConfig {
 
   @override
   String toString() {
+    final maskedKey = apiKey == null
+        ? 'null'
+        : apiKey!.length > 7
+            ? '${apiKey!.substring(0, 7)}***'
+            : '***';
     return 'OpenAIClientConfig('
-        'apiKey: ${apiKey.substring(0, 7)}***, '
+        'apiKey: $maskedKey, '
         'baseUrl: $baseUrl, '
         'organization: $organization, '
         'requestsTimeOut: $requestsTimeOut, '

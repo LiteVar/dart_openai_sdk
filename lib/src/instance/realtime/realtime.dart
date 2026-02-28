@@ -85,17 +85,16 @@ class OpenAIRealtime implements OpenAIRealtimeBase {
       final uri = Uri.parse('$endpoint?model=$model');
 
       final apiKey = HeadersBuilder.apiKey;
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('API key not set. Please set OpenAI.apiKey before connecting.');
-      }
+
+      final connectionHeaders = <String, String>{
+        if (apiKey != null) 'Authorization': 'Bearer $apiKey',
+        'OpenAI-Beta': 'realtime=v1',
+        ...?headers,
+      };
 
       _channel = IOWebSocketChannel.connect(
         uri,
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'OpenAI-Beta': 'realtime=v1',
-          ...?headers,
-        },
+        headers: connectionHeaders,
       );
 
       await _channel!.ready;
