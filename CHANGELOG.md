@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.1.0
+- support stream tts
+- make apikey optional
+
 ## 6.0.0
 - RealTime API support
 - reasoningContent field support
