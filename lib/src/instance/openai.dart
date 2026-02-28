@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:dart_openai_sdk/src/instance/edits/edits.dart';
 import 'package:dart_openai_sdk/src/instance/moderations/moderations.dart';
 import '../core/base/openai_client/base.dart';
@@ -34,13 +33,11 @@ import '../core/models/tool/tool.dart';
 /// // New recommended way
 /// final client = OpenAIClient(apiKey: "your-key");
 /// ```
-@immutable
 final class OpenAI extends OpenAIClientBase {
   /// The singleton instance of [OpenAI].
   static final OpenAI _instance = OpenAI._();
 
-  /// The internal OpenAIClient instance
-  /// Note: Although marked as @immutable, this field is lazily initialized in actual use
+  /// The internal OpenAIClient instance, lazily initialized
   OpenAIClient? _internalClient;
 
   /// The singleton instance of [OpenAI].

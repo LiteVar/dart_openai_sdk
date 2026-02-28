@@ -507,7 +507,7 @@ class OpenAIRealtime implements OpenAIRealtimeBase {
             arguments = {};
           }
           
-          if (name != null && callId != null && arguments != null) {
+          if (name != null && callId != null) {
             try {
               if (_debugMode) {
                 OpenAILogger.log('Calling tool: $name with arguments: $arguments');

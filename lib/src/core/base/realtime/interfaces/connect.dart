@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'package:meta/meta.dart';
 import '../../../models/realtime/session/session_config.dart';
 import '../../../models/realtime/event/realtime_event.dart';
 
 /// Connect management interface, defining connection-related operations for the realtime module
-@immutable
 abstract class ConnectInterface {
   /// Connect to OpenAI Realtime API
   ///

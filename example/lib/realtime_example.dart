@@ -511,7 +511,7 @@ Future<void> _demonstrateBase64Audio(OpenAIRealtime realtime) async {
   await _demonstrateCompleteAudioFile(realtime);
   
   // // Example 2: Send audio in chunks
-  // await _demonstrateChunkedAudio(realtime);
+  await _demonstrateChunkedAudio(realtime);
 }
 
 /// Example 1: Send complete audio file

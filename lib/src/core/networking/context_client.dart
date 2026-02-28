@@ -4,13 +4,11 @@ import "dart:io";
 
 import 'package:dart_openai_sdk/dart_openai_sdk.dart';
 import "package:dart_openai_sdk/src/core/builder/context_headers.dart";
-import "package:dart_openai_sdk/src/core/config/client_config.dart";
 import "package:dart_openai_sdk/src/core/utils/logger.dart";
 import "package:http/http.dart" as http;
 import "package:meta/meta.dart";
 
 import '../constants/strings.dart';
-import '../utils/extensions.dart';
 
 import "../utils/streaming_http_client_default.dart"
     if (dart.library.js) 'package:dart_openai_sdk/src/core/utils/streaming_http_client_web.dart'
