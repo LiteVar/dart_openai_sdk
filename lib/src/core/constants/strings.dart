@@ -23,8 +23,8 @@ abstract class OpenAIStrings {
   /// The verb name for the [POST] method.
   static const postMethod = 'POST';
 
-  /// The identifier and initial value to exclude for stream responses (SSE).
-  static const streamResponseStart = "data: ";
+  /// SSE data prefix for stream responses, compatible with both "data: " and "data:" formats.
+  static const streamResponsePrefix = "data:";
 
   /// The identifier and final value to exclude for stream responses (SSE).
   static const streamResponseEnd = "[DONE]";

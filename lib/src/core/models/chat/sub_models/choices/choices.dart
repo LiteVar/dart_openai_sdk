@@ -1,3 +1,4 @@
+import '../../../../enum.dart';
 import 'sub_models/log_probs/log_probs.dart';
 import 'sub_models/message.dart';
 
@@ -37,12 +38,15 @@ final class OpenAIChatCompletionChoiceModel {
 
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionChoiceModel] object.
   factory OpenAIChatCompletionChoiceModel.fromMap(Map<String, dynamic> json) {
+    final rawIndex = json['index'];
     return OpenAIChatCompletionChoiceModel(
-//! Here we use the [int.tryParse] method to convert the [String] to an [int] if it's possible, otherwise we use the [String] value.
-      index: json['index'] is int
-          ? json['index']
-          : int.tryParse(json['index'].toString()) ?? json['index'],
-      message: OpenAIChatCompletionChoiceMessageModel.fromMap(json['message']),
+      index: rawIndex is int
+          ? rawIndex
+          : (rawIndex != null ? int.tryParse(rawIndex.toString()) ?? 0 : 0),
+      message: json['message'] != null
+          ? OpenAIChatCompletionChoiceMessageModel.fromMap(json['message'])
+          : const OpenAIChatCompletionChoiceMessageModel(
+              role: OpenAIChatMessageRole.assistant, content: null),
       finishReason: json['finish_reason'],
       logprobs: json['logprobs'] != null
           ? OpenAIChatCompletionChoiceLogProbsModel.fromMap(json['logprobs'])

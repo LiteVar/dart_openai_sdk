@@ -55,12 +55,16 @@ final class OpenAIChatCompletionModel {
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionModel] object.
   factory OpenAIChatCompletionModel.fromMap(Map<String, dynamic> json) {
     return OpenAIChatCompletionModel(
-      id: json['id'],
-      created: DateTime.fromMillisecondsSinceEpoch(json['created'] * 1000),
-      choices: (json['choices'] as List)
-          .map((choice) => OpenAIChatCompletionChoiceModel.fromMap(choice))
-          .toList(),
-      usage: OpenAIChatCompletionUsageModel.fromMap(json['usage']),
+      id: json['id'] ?? '',
+      created: DateTime.fromMillisecondsSinceEpoch((json['created'] ?? 0) * 1000),
+      choices: json['choices'] != null
+          ? (json['choices'] as List)
+              .map((choice) => OpenAIChatCompletionChoiceModel.fromMap(choice))
+              .toList()
+          : [],
+      usage: json['usage'] != null
+          ? OpenAIChatCompletionUsageModel.fromMap(json['usage'])
+          : const OpenAIChatCompletionUsageModel(promptTokens: 0, completionTokens: 0, totalTokens: 0),
       systemFingerprint: json['system_fingerprint'],
     );
   }

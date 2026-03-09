@@ -86,8 +86,10 @@ class OpenAIStreamResponseToolCall extends OpenAIResponseToolCall {
     return OpenAIStreamResponseToolCall(
       id: map['id'],
       type: map['type'],
-      function: OpenAIResponseFunction.fromMap(map['function']),
-      index: map['index'],
+      function: map['function'] != null
+          ? OpenAIResponseFunction.fromMap(map['function'])
+          : OpenAIResponseFunction(name: null, arguments: null),
+      index: map['index'] ?? 0,
     );
   }
 

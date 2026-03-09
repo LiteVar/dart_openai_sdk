@@ -138,7 +138,9 @@ class OpenAIRealtimeSessionUpdateEvent extends OpenAIRealtimeEventModel {
   factory OpenAIRealtimeSessionUpdateEvent.fromMap(Map<String, dynamic> map) {
     return OpenAIRealtimeSessionUpdateEvent(
       eventId: map['event_id'] ?? '',
-      session: OpenAIRealtimeSessionConfigModel.fromMap(map['session']),
+      session: map['session'] != null
+          ? OpenAIRealtimeSessionConfigModel.fromMap(map['session'])
+          : const OpenAIRealtimeSessionConfigModel(),
     );
   }
 
@@ -186,7 +188,9 @@ class OpenAIRealtimeSessionCreatedEvent extends OpenAIRealtimeEventModel {
   factory OpenAIRealtimeSessionCreatedEvent.fromMap(Map<String, dynamic> map) {
     return OpenAIRealtimeSessionCreatedEvent(
       eventId: map['event_id'] ?? '',
-      session: OpenAIRealtimeSessionConfigModel.fromMap(map['session']),
+      session: map['session'] != null
+          ? OpenAIRealtimeSessionConfigModel.fromMap(map['session'])
+          : const OpenAIRealtimeSessionConfigModel(),
     );
   }
 

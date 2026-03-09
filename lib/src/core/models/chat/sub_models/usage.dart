@@ -31,9 +31,9 @@ final class OpenAIChatCompletionUsageModel {
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIChatCompletionUsageModel] object.
   factory OpenAIChatCompletionUsageModel.fromMap(Map<String, dynamic> json) {
     return OpenAIChatCompletionUsageModel(
-      promptTokens: json['prompt_tokens'],
-      completionTokens: json['completion_tokens'],
-      totalTokens: json['total_tokens'],
+      promptTokens: json['prompt_tokens'] ?? 0,
+      completionTokens: json['completion_tokens'] ?? 0,
+      totalTokens: json['total_tokens'] ?? 0,
     );
   }
 

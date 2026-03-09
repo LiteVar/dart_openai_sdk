@@ -34,9 +34,9 @@ final class OpenAIStreamChatCompletionUsageModel {
     Map<String, dynamic> json,
   ) {
     return OpenAIStreamChatCompletionUsageModel(
-      promptTokens: json['prompt_tokens'],
-      completionTokens: json['completion_tokens'],
-      totalTokens: json['total_tokens'],
+      promptTokens: json['prompt_tokens'] ?? 0,
+      completionTokens: json['completion_tokens'] ?? 0,
+      totalTokens: json['total_tokens'] ?? 0,
     );
   }
 

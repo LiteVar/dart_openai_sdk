@@ -34,8 +34,11 @@ final class OpenAIStreamChatCompletionChoiceModel {
     Map<String, dynamic> json,
   ) {
     return OpenAIStreamChatCompletionChoiceModel(
-      index: json['index'],
-      delta: OpenAIStreamChatCompletionChoiceDeltaModel.fromMap(json['delta']),
+      index: json['index'] ?? 0,
+      delta: json['delta'] != null
+          ? OpenAIStreamChatCompletionChoiceDeltaModel.fromMap(json['delta'])
+          : const OpenAIStreamChatCompletionChoiceDeltaModel(
+              role: null, content: null),
       finishReason: json['finish_reason'],
     );
   }

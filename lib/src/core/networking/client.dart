@@ -24,7 +24,7 @@ final class _OpenAIChatStreamSink implements EventSink<String> {
   _OpenAIChatStreamSink(this._sink);
 
   void add(String str) {
-    final isStartOfResponse = str.startsWith(OpenAIStrings.streamResponseStart);
+    final isStartOfResponse = str.startsWith(OpenAIStrings.streamResponsePrefix);
     final isEndOfResponse = str.contains(OpenAIStrings.streamResponseEnd);
     final isDataResponseBoundaries = isStartOfResponse || isEndOfResponse;
 
@@ -172,8 +172,10 @@ abstract class OpenAINetworkingClient {
               .toList();
 
           for (String line in dataLines) {
-            if (line.startsWith(OpenAIStrings.streamResponseStart)) {
-              final String data = line.substring(6);
+            if (line.startsWith(OpenAIStrings.streamResponsePrefix)) {
+              final String data = line
+                  .substring(OpenAIStrings.streamResponsePrefix.length)
+                  .trimLeft();
               if (data.startsWith(OpenAIStrings.streamResponseEnd)) {
                 OpenAILogger.streamResponseDone();
 
@@ -378,8 +380,10 @@ abstract class OpenAINetworkingClient {
                   .toList();
 
               for (String line in dataLines) {
-                if (line.startsWith(OpenAIStrings.streamResponseStart)) {
-                  final String data = line.substring(6);
+                if (line.startsWith(OpenAIStrings.streamResponsePrefix)) {
+                  final String data = line
+                      .substring(OpenAIStrings.streamResponsePrefix.length)
+                      .trimLeft();
                   if (data.contains(OpenAIStrings.streamResponseEnd)) {
                     OpenAILogger.streamResponseDone();
                     break;
@@ -763,8 +767,10 @@ abstract class OpenAINetworkingClient {
             final line = lines[i].trim();
             if (line.isEmpty) continue;
             
-            if (line.startsWith(OpenAIStrings.streamResponseStart)) {
-              final data = line.substring(6).trim();
+            if (line.startsWith(OpenAIStrings.streamResponsePrefix)) {
+              final data = line
+                  .substring(OpenAIStrings.streamResponsePrefix.length)
+                  .trimLeft();
               if (data == OpenAIStrings.streamResponseEnd || data.contains(OpenAIStrings.streamResponseEnd)) {
                 OpenAILogger.streamResponseDone();
                 return;
@@ -782,8 +788,10 @@ abstract class OpenAINetworkingClient {
         }
         
         // 处理最后的缓冲区
-        if (buffer.trim().isNotEmpty && buffer.startsWith(OpenAIStrings.streamResponseStart)) {
-          final data = buffer.substring(6).trim();
+        if (buffer.trim().isNotEmpty && buffer.startsWith(OpenAIStrings.streamResponsePrefix)) {
+          final data = buffer
+              .substring(OpenAIStrings.streamResponsePrefix.length)
+              .trimLeft();
           if (data.isNotEmpty && data != OpenAIStrings.streamResponseEnd && !data.contains(OpenAIStrings.streamResponseEnd)) {
             try {
               final decoded = jsonDecode(data) as Map<String, dynamic>;

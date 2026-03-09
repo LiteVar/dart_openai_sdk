@@ -9,6 +9,7 @@ import "package:http/http.dart" as http;
 import "package:meta/meta.dart";
 
 import '../constants/strings.dart';
+import '../utils/extensions.dart';
 
 import "../utils/streaming_http_client_default.dart"
     if (dart.library.js) 'package:dart_openai_sdk/src/core/utils/streaming_http_client_web.dart'
@@ -190,8 +191,10 @@ abstract class ContextualNetworkingClient {
                   .toList();
 
               for (String line in dataLines) {
-                if (line.startsWith(OpenAIStrings.streamResponseStart)) {
-                  final String data = line.substring(6);
+                if (line.startsWith(OpenAIStrings.streamResponsePrefix)) {
+                  final String data = line
+                      .substring(OpenAIStrings.streamResponsePrefix.length)
+                      .trimLeft();
                   if (data.contains(OpenAIStrings.streamResponseEnd)) {
                     if (config.showLogs) {
                       OpenAILogger.streamResponseDone();

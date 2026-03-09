@@ -51,13 +51,15 @@ final class OpenAIStreamChatCompletionModel {
   /// This is used  to convert a [Map<String, dynamic>] object to a [OpenAIStreamChatCompletionModel] object.
   factory OpenAIStreamChatCompletionModel.fromMap(Map<String, dynamic> json) {
     return OpenAIStreamChatCompletionModel(
-      id: json['id'],
-      created: DateTime.fromMillisecondsSinceEpoch(json['created'] * 1000),
-      choices: (json['choices'] as List)
-          .map(
-            (choice) => OpenAIStreamChatCompletionChoiceModel.fromMap(choice),
-          )
-          .toList(),
+      id: json['id'] ?? '',
+      created: DateTime.fromMillisecondsSinceEpoch((json['created'] ?? 0) * 1000),
+      choices: json['choices'] != null
+          ? (json['choices'] as List)
+              .map(
+                (choice) => OpenAIStreamChatCompletionChoiceModel.fromMap(choice),
+              )
+              .toList()
+          : [],
       systemFingerprint: json['system_fingerprint'],
       usage: json['usage'] != null
           ? OpenAIStreamChatCompletionUsageModel.fromMap(json['usage'])
