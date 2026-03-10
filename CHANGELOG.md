@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.1.1
+- fix compatibility issues
+
 ## 6.1.0
 - support stream tts
 - make apikey optional
