@@ -72,7 +72,7 @@ final class OpenAIChatCompletionChoiceMessageModel {
               .map((toolCall) => OpenAIResponseToolCall.fromMap(toolCall))
               .toList()
           : null,
-      reasoningContent: json['reasoning_content'],
+      reasoningContent: json['reasoning_content'] ?? json['reasoning'],
       reasoningTokens: json['reasoning_tokens'],
     );
   }
