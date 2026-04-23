@@ -11,6 +11,8 @@ abstract class ContextualApiUrlBuilder {
   /// The default API version
   static const String _defaultVersion = 'v1';
 
+  static final RegExp _versionPattern = RegExp(r'/v\d+$');
+
   /// {@macro contextual_api_url_builder}
   ///
   /// Build a complete API URL based on the given configuration and endpoint.
@@ -47,8 +49,7 @@ abstract class ContextualApiUrlBuilder {
     // Build the base URL
     String apiUrl = baseUrl;
 
-    // If baseUrl does not contain a version, add the version
-    if (!baseUrl.contains('/v1') && !baseUrl.contains('/v2')) {
+    if (!_versionPattern.hasMatch(baseUrl)) {
       apiUrl += '/$_defaultVersion';
     }
 
@@ -93,8 +94,7 @@ abstract class ContextualApiUrlBuilder {
       wsUrl = wsUrl.substring(0, wsUrl.length - 1);
     }
 
-    // Add the version (if needed)
-    if (!wsUrl.contains('/v1') && !wsUrl.contains('/v2')) {
+    if (!_versionPattern.hasMatch(wsUrl)) {
       wsUrl += '/$_defaultVersion';
     }
 

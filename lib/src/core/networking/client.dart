@@ -409,6 +409,13 @@ abstract class OpenAINetworkingClient {
                   yield* Stream<T>.error(
                     exception,
                   ); // Error cases sent from openai
+                } else if (_isRemoteBusinessError(decodedData)) {
+                  final message = decodedData['message']?.toString() ??
+                      decodedData['data']?.toString() ??
+                      'Remote service error (code: ${decodedData['code']})';
+                  yield* Stream<T>.error(
+                    RequestFailedException(message, respond.statusCode),
+                  );
                 }
               }
             } // end of await for
@@ -669,6 +676,12 @@ abstract class OpenAINetworkingClient {
 
   static bool doesErrorExists(Map<String, dynamic> decodedResponseBody) {
     return decodedResponseBody[OpenAIStrings.errorFieldKey] != null;
+  }
+
+  /// Detects non-OpenAI business errors such as `{"code": 30015, "message": "..."}`.
+  static bool _isRemoteBusinessError(Map<String, dynamic> body) {
+    final code = body['code'];
+    return code is int && code != 0 && body.containsKey('message');
   }
 
   static http.Client _streamingHttpClient() {

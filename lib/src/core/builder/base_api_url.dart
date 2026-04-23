@@ -12,6 +12,8 @@ abstract class BaseApiUrlBuilder {
   /// [endpoint] is the endpoint of the request.
   /// if an [id] is pr =ovided, it will be added to the url as well.
   /// if a [query] is provided, it will be added to the url as well.
+  static final RegExp _versionPattern = RegExp(r'/v\d+$');
+
   @internal
   static String build(String endpoint, [String? id, String? query]) {
     final baseUrl = OpenAIConfig.baseUrl;
@@ -19,7 +21,9 @@ abstract class BaseApiUrlBuilder {
     final usedEndpoint = _handleEndpointsStarting(endpoint);
 
     String apiLink = "$baseUrl";
-    apiLink += "/$version";
+    if (!_versionPattern.hasMatch(baseUrl)) {
+      apiLink += "/$version";
+    }
     apiLink += "$usedEndpoint";
 
     if (id != null) {

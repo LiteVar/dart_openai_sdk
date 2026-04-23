@@ -222,6 +222,13 @@ abstract class ContextualNetworkingClient {
                   final exception = RequestFailedException(message, statusCode);
 
                   yield* Stream<T>.error(exception);
+                } else if (_isRemoteBusinessError(decodedData)) {
+                  final message = decodedData['message']?.toString() ??
+                      decodedData['data']?.toString() ??
+                      'Remote service error (code: ${decodedData['code']})';
+                  yield* Stream<T>.error(
+                    RequestFailedException(message, respond.statusCode),
+                  );
                 }
               }
             }
@@ -627,6 +634,12 @@ abstract class ContextualNetworkingClient {
 
   static bool _doesErrorExists(Map<String, dynamic> decodedResponseBody) {
     return decodedResponseBody[OpenAIStrings.errorFieldKey] != null;
+  }
+
+  /// Detects non-OpenAI business errors such as `{"code": 30015, "message": "..."}`.
+  static bool _isRemoteBusinessError(Map<String, dynamic> body) {
+    final code = body['code'];
+    return code is int && code != 0 && body.containsKey('message');
   }
 
   static http.Client _streamingHttpClient() {
