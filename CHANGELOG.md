@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.1.3
+- fixed issues
+
 ## 6.1.2
 - support returning reasoning as thinking
 
