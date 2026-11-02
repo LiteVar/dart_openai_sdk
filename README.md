@@ -23,31 +23,31 @@ A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 
 ## Code Progress
 
-- [x] [Authentication](#authentication)
-- [x] [Models](#models)
-- [x] [Completions](#completions)
-  - [x] With `Stream` responses.
-- [x] [Chat (ChatCompletions)](#chat-chatcompletions)
-  - [x] With `Stream` responses.
-  - [x] [Tools](#tools--new-implementation-of-functions-calling)
-- [x] [RealTime](#realtime)
-- [x] [Edits](#edits)
-- [x] [Images](#images)
-- [x] [Embeddings](#embeddings)
-- [x] [Audio](#audio)
-- [x] [Files](#files)
-- [x] [Fine-tunes](#fine-tunes)
-  - [x] With events `Stream` responses.
-- [x] [Moderation](#moderations)
-- [x] [Responses](#responses)
-- [x] [Conversations](#conversations)
-- [x] [Uploads](#files-and-uploads)
-- [x] [Vector Stores](#vector-stores)
-- [x] [Batches](#batches)
-- [x] [Fine-tuning Jobs](#fine-tuning-jobs)
-- [x] [Containers](#containers)
-- [x] [Evals](#evals)
-- [x] [Graders](#graders)
+- ✅ [Authentication](#authentication)
+- ✅ [Models](#models)
+- ✅ [Completions](#completions)
+  - ✅ With `Stream` responses.
+- ✅ [Chat (ChatCompletions)](#chat-chatcompletions)
+  - ✅ With `Stream` responses.
+  - ✅ [Tools](#tools--new-implementation-of-functions-calling)
+- ✅ [RealTime](#realtime)
+- ✅ [Edits](#edits)
+- ✅ [Images](#images)
+- ✅ [Embeddings](#embeddings)
+- ✅ [Audio](#audio)
+- ✅ [Files](#files)
+- ✅ [Fine-tunes](#fine-tunes)
+  - ✅ With events `Stream` responses.
+- ✅ [Moderation](#moderations)
+- ✅ [Responses](#responses)
+- ✅ [Conversations](#conversations)
+- ✅ [Uploads](#files-and-uploads)
+- ✅ [Vector Stores](#vector-stores)
+- ✅ [Batches](#batches)
+- ✅ [Fine-tuning Jobs](#fine-tuning-jobs)
+- ✅ [Containers](#containers)
+- ✅ [Evals](#evals)
+- ✅ [Graders](#graders)
 
 # Usage
 
