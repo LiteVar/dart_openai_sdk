@@ -1,5 +1,18 @@
 # Changelog
 
+## 6.2.0
+- Add Responses API support for creation, streaming, retrieval, deletion, cancellation, input item listing, token counting, and compaction.
+- Keep Responses requests isolated to each `OpenAIClient` configuration.
+- Surface HTTP and SSE errors from Responses requests as `RequestFailedException`.
+- Add Conversations API support for conversation and item management.
+- Add contextual Files support with pagination and byte-based multipart uploads.
+- Add multipart Upload lifecycle support (create, add part, complete, cancel).
+- Add Vector Stores lifecycle, search, file attachment/content, and file batch APIs.
+- Add Batch API creation, pagination, retrieval, and cancellation.
+- Add the current Fine-tuning Jobs API and deprecate the legacy `fineTune` accessor while retaining it for source compatibility.
+- Add client-scoped Containers and container file APIs.
+- Add source-compatible Evals and Graders APIs, marked deprecated according to OpenAI's platform transition.
+
 ## 6.1.3
 - fixed issues
 

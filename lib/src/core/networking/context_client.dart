@@ -9,7 +9,6 @@ import "package:http/http.dart" as http;
 import "package:meta/meta.dart";
 
 import '../constants/strings.dart';
-import '../utils/extensions.dart';
 
 import "../utils/streaming_http_client_default.dart"
     if (dart.library.js) 'package:dart_openai_sdk/src/core/utils/streaming_http_client_web.dart'
@@ -142,6 +141,332 @@ abstract class ContextualNetworkingClient {
       }
 
       return onSuccess(decodedBody);
+    }
+  }
+
+  /// Checked JSON request used by newly added endpoints that need raw HTTP
+  /// status handling without changing the behavior of existing API modules.
+  static Future<T> postChecked<T>({
+    required String to,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required OpenAIClientConfig config,
+    Map<String, dynamic>? body,
+    http.Client? client,
+  }) async {
+    if (config.showLogs) OpenAILogger.logStartRequest(to);
+    final uri = Uri.parse(to);
+    final headers = ContextualHeadersBuilder.build(config);
+    final encodedBody = body == null ? null : jsonEncode(body);
+    final response = await (client == null
+            ? http.post(uri, headers: headers, body: encodedBody)
+            : client.post(uri, headers: headers, body: encodedBody))
+        .timeout(config.requestsTimeOut);
+    if (config.showResponsesLogs) OpenAILogger.logResponseBody(response);
+    final decoded = _decodeCheckedResponse(response, to, config);
+    return onSuccess(decoded);
+  }
+
+  /// Checked GET request used by newly added endpoints.
+  static Future<T> getChecked<T>({
+    required String from,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required OpenAIClientConfig config,
+    http.Client? client,
+  }) async {
+    if (config.showLogs) OpenAILogger.logStartRequest(from);
+    final uri = Uri.parse(from);
+    final headers = ContextualHeadersBuilder.build(config);
+    final response = await (client == null
+            ? http.get(uri, headers: headers)
+            : client.get(uri, headers: headers))
+        .timeout(config.requestsTimeOut);
+    if (config.showResponsesLogs) OpenAILogger.logResponseBody(response);
+    return onSuccess(_decodeCheckedResponse(response, from, config));
+  }
+
+  /// Checked DELETE request used by newly added endpoints.
+  static Future<T> deleteChecked<T>({
+    required String from,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required OpenAIClientConfig config,
+    http.Client? client,
+  }) async {
+    if (config.showLogs) OpenAILogger.logStartRequest(from);
+    final uri = Uri.parse(from);
+    final headers = ContextualHeadersBuilder.build(config);
+    final response = await (client == null
+            ? http.delete(uri, headers: headers)
+            : client.delete(uri, headers: headers))
+        .timeout(config.requestsTimeOut);
+    if (config.showResponsesLogs) OpenAILogger.logResponseBody(response);
+    if (response.statusCode == 204 && response.bodyBytes.isEmpty) {
+      return onSuccess(const <String, dynamic>{});
+    }
+    return onSuccess(_decodeCheckedResponse(response, from, config));
+  }
+
+  /// Sends a byte-backed multipart file with checked status and JSON handling.
+  static Future<T> multipartPostChecked<T>({
+    required String to,
+    required String fileField,
+    required OpenAIFile file,
+    required Map<String, String> fields,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required OpenAIClientConfig config,
+    http.Client? client,
+  }) async {
+    final ownsClient = client == null;
+    final clientForUse = client ?? _streamingHttpClient();
+    try {
+      if (config.showLogs) OpenAILogger.logStartRequest(to);
+      final request = http.MultipartRequest(
+        OpenAIStrings.postMethod,
+        Uri.parse(to),
+      )
+        ..headers.addAll(ContextualHeadersBuilder.buildForMultipart(config))
+        ..fields.addAll(fields)
+        ..files.add(
+          http.MultipartFile.fromBytes(
+            fileField,
+            file.bytes,
+            filename: file.fileName,
+          ),
+        );
+      final streamed = await clientForUse
+          .send(request)
+          .timeout(config.requestsTimeOut);
+      final response = await http.Response.fromStream(streamed)
+          .timeout(config.requestsTimeOut);
+      if (config.showResponsesLogs) OpenAILogger.logResponseBody(response);
+      return onSuccess(_decodeCheckedResponse(response, to, config));
+    } catch (error, stackTrace) {
+      if (config.showLogs) OpenAILogger.errorOcurred(error);
+      Error.throwWithStackTrace(error, stackTrace);
+    } finally {
+      if (ownsClient) clientForUse.close();
+    }
+  }
+
+  /// Retrieves non-JSON content while still checking HTTP error statuses.
+  static Future<http.Response> getRawChecked({
+    required String from,
+    required OpenAIClientConfig config,
+    http.Client? client,
+  }) async {
+    if (config.showLogs) OpenAILogger.logStartRequest(from);
+    final uri = Uri.parse(from);
+    final headers = ContextualHeadersBuilder.build(config);
+    final response = await (client == null
+            ? http.get(uri, headers: headers)
+            : client.get(uri, headers: headers))
+        .timeout(config.requestsTimeOut);
+    if (config.showResponsesLogs) OpenAILogger.logResponseBody(response);
+    if (config.showLogs) {
+      OpenAILogger.requestToWithStatusCode(from, response.statusCode);
+    }
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+      throw _requestFailedFromBody(
+        body,
+        _tryDecodeJsonMap(body),
+        response.statusCode,
+      );
+    }
+    return response;
+  }
+
+  static Map<String, dynamic> _decodeCheckedResponse(
+    http.Response response,
+    String url,
+    OpenAIClientConfig config,
+  ) {
+    if (config.showLogs) {
+      OpenAILogger.requestToWithStatusCode(url, response.statusCode);
+      OpenAILogger.startingDecoding();
+    }
+    final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+    Map<String, dynamic>? decoded;
+    try {
+      final value = jsonDecode(body);
+      if (value is Map) decoded = Map<String, dynamic>.from(value);
+    } on FormatException {
+      decoded = null;
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw _requestFailedFromBody(body, decoded, response.statusCode);
+    }
+    if (decoded == null) {
+      throw RequestFailedException(
+        body.trim().isEmpty ? 'Expected a JSON object response' : body,
+        response.statusCode,
+      );
+    }
+    if (config.showLogs) OpenAILogger.decodedSuccessfully();
+    return decoded;
+  }
+
+  static RequestFailedException _requestFailedFromBody(
+    String body,
+    Map<String, dynamic>? decoded,
+    int statusCode,
+  ) {
+    if (decoded != null) {
+      return _requestFailedFromMap(decoded, statusCode) ??
+          RequestFailedException(
+            body.trim().isEmpty
+                ? 'Request failed with status $statusCode'
+                : body,
+            statusCode,
+          );
+    }
+    return RequestFailedException(
+      body.trim().isEmpty ? 'Request failed with status $statusCode' : body,
+      statusCode,
+    );
+  }
+
+  static RequestFailedException? _requestFailedFromMap(
+    Map<String, dynamic> body,
+    int statusCode,
+  ) {
+    final error = body[OpenAIStrings.errorFieldKey];
+    if (error != null) {
+      final message =
+          error is Map ? error['message']?.toString() : error.toString();
+      return RequestFailedException(
+        message == null || message.isEmpty ? jsonEncode(body) : message,
+        statusCode,
+      );
+    }
+    if (_isRemoteBusinessError(body)) {
+      final message = body['message']?.toString() ??
+          body['data']?.toString() ??
+          'Remote service error (code: ${body['code']})';
+      return RequestFailedException(message, statusCode);
+    }
+    return null;
+  }
+
+  /// Responses-specific SSE path. The legacy [postStream] remains unchanged
+  /// so existing Chat and audio-compatible callers keep their current parser.
+  static Stream<T> postEventStream<T>({
+    required String to,
+    required T Function(Map<String, dynamic>) onSuccess,
+    required Map<String, dynamic> body,
+    required OpenAIClientConfig config,
+    http.Client? client,
+    Set<String> terminalEventTypes = const {},
+  }) async* {
+    final ownsClient = client == null;
+    final clientForUse = client ?? _streamingHttpClient();
+    try {
+      if (config.showLogs) OpenAILogger.logStartRequest(to);
+      final headers = ContextualHeadersBuilder.build(config)
+        ..['Accept'] = 'text/event-stream';
+      final request = http.Request(OpenAIStrings.postMethod, Uri.parse(to))
+        ..headers.addAll(headers)
+        ..body = jsonEncode(body);
+      final response =
+          await clientForUse.send(request).timeout(config.requestsTimeOut);
+      if (config.showLogs) {
+        OpenAILogger.requestToWithStatusCode(to, response.statusCode);
+        OpenAILogger.startReadStreamResponse();
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final errorBody = await response.stream
+            .timeout(config.requestsTimeOut)
+            .transform(utf8.decoder)
+            .join();
+        throw _requestFailedFromBody(
+            errorBody, _tryDecodeJsonMap(errorBody), response.statusCode);
+      }
+      await for (final event in _parseSseEvents(
+        response.stream.timeout(config.requestsTimeOut),
+        response.statusCode,
+      )) {
+        yield onSuccess(event);
+        if (terminalEventTypes.contains(event['type'])) return;
+      }
+    } catch (error, stackTrace) {
+      if (config.showLogs) OpenAILogger.errorOcurred(error);
+      Error.throwWithStackTrace(error, stackTrace);
+    } finally {
+      if (ownsClient) clientForUse.close();
+    }
+  }
+
+  static Map<String, dynamic>? _tryDecodeJsonMap(String body) {
+    try {
+      final value = jsonDecode(body);
+      return value is Map ? Map<String, dynamic>.from(value) : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  static Stream<Map<String, dynamic>> _parseSseEvents(
+    Stream<List<int>> byteStream,
+    int statusCode,
+  ) async* {
+    final eventData = <String>[];
+    final rawBody = StringBuffer();
+    var emittedEvent = false;
+
+    Map<String, dynamic> decodeEvent(String data) {
+      if (data.trim() == OpenAIStrings.streamResponseEnd) {
+        return const {'type': '__done__'};
+      }
+      final decoded = jsonDecode(data);
+      if (decoded is! Map) {
+        throw FormatException('Expected an SSE JSON object, got: $data');
+      }
+      final event = Map<String, dynamic>.from(decoded);
+      if (event['type'] == 'error') {
+        final message = event['message']?.toString() ?? jsonEncode(event);
+        throw RequestFailedException(message, statusCode);
+      }
+      return event;
+    }
+
+    final lines = byteStream.transform(utf8.decoder).transform(LineSplitter());
+    await for (final line in lines) {
+      if (line.isEmpty) {
+        if (eventData.isEmpty) continue;
+        final event = decodeEvent(eventData.join('\n'));
+        eventData.clear();
+        if (event['type'] == '__done__') {
+          OpenAILogger.streamResponseDone();
+          return;
+        }
+        emittedEvent = true;
+        yield event;
+        continue;
+      }
+      if (line.startsWith(':')) continue;
+      if (line.startsWith('data:')) {
+        var value = line.substring(5);
+        if (value.startsWith(' ')) value = value.substring(1);
+        eventData.add(value);
+      } else if (!line.startsWith('event:') &&
+          !line.startsWith('id:') &&
+          !line.startsWith('retry:')) {
+        rawBody.writeln(line);
+      }
+    }
+
+    if (eventData.isNotEmpty) {
+      final event = decodeEvent(eventData.join('\n'));
+      if (event['type'] == '__done__') {
+        OpenAILogger.streamResponseDone();
+        return;
+      }
+      emittedEvent = true;
+      yield event;
+    }
+    final raw = rawBody.toString().trim();
+    if (!emittedEvent && raw.isNotEmpty) {
+      throw _requestFailedFromBody(raw, _tryDecodeJsonMap(raw), statusCode);
     }
   }
 

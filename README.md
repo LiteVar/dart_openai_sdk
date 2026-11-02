@@ -4,7 +4,7 @@ A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 
 - **NOT** OpenAI official
 - **NEW:** RealTime API Support.
-- **TODO:** Response API.
+- **NEW:** Responses API Support, including streaming.
 - **fork** from [dart_openai](https://github.com/anasfik/openai) and continue maintained by [LiteVar](https://github.com/LiteVar).
 
 ## Note
@@ -39,6 +39,15 @@ A Flutter/Dart SDK for OpenAI API by [LitaVar](https://github.com/LiteVar).
 - [x] [Fine-tunes](#fine-tunes)
   - [x] With events `Stream` responses.
 - [x] [Moderation](#moderations)
+- [x] [Responses](#responses)
+- [x] [Conversations](#conversations)
+- [x] [Uploads](#files-and-uploads)
+- [x] [Vector Stores](#vector-stores)
+- [x] [Batches](#batches)
+- [x] [Fine-tuning Jobs](#fine-tuning-jobs)
+- [x] [Containers](#containers)
+- [x] [Evals](#evals)
+- [x] [Graders](#graders)
 
 # Usage
 
@@ -126,6 +135,266 @@ OpenAI.showResponsesLogs = true;
 ```
 
 This will log the raw responses that are returned from the API, such when the request is successful, or when it failed. (This don't include the stream responses).
+
+## Responses
+
+The Responses API is available from both the multi-client API and the legacy
+singleton facade. Each `OpenAIClient` keeps its own Responses configuration.
+
+```dart
+final client = OpenAIClient(
+  apiKey: 'YOUR_API_KEY',
+  baseUrl: 'https://api.openai.com/v1',
+);
+
+final response = await client.responses.create(
+  model: 'gpt-4.1-mini',
+  input: 'Say hello in one sentence.',
+);
+
+print(response.outputText);
+```
+
+Existing singleton users can call `OpenAI.instance.responses.create(...)` after
+setting `OpenAI.apiKey`. For streaming, each event is a decoded map with a
+`type` field:
+
+```dart
+await for (final event in client.responses.createStream(
+  model: 'gpt-4.1-mini',
+  input: 'Write a haiku about Dart.',
+)) {
+  if (event['type'] == 'response.output_text.delta') {
+    print(event['delta']);
+  }
+}
+```
+
+The module also supports retrieving, deleting, and cancelling responses,
+listing response input items, counting input tokens, and compacting input.
+Compaction is called with its input context and model, and returns a compacted
+response object.
+
+## Conversations
+
+Use Conversations to persist server-side context and pass its ID into a
+Responses request. Conversation items stay as raw maps because the API can
+store different item types, including messages and tool calls.
+
+```dart
+final conversation = await client.conversations.create(
+  items: [
+    {'role': 'user', 'content': 'Remember that I prefer concise answers.'},
+  ],
+  metadata: {'session': 'example'},
+);
+
+final response = await client.responses.create(
+  model: 'gpt-4.1-mini',
+  conversation: conversation.id,
+  input: 'What style do I prefer?',
+);
+
+print(response.outputText);
+```
+
+The module also supports retrieving and updating conversations, listing or
+adding items, retrieving individual items, and deleting items or conversations.
+
+## Files and Uploads
+
+`OpenAIClient.files` provides file listing with pagination, retrieval, content
+download, upload from bytes, and deletion. The existing `OpenAI.instance.file`
+API remains available with its original return types.
+
+For large files, use the multipart Upload API. Each part can contain up to
+64 MB; pass the part IDs in order when completing the upload.
+
+```dart
+final upload = await client.uploads.create(
+  bytes: fileBytes.length,
+  filename: 'training.jsonl',
+  mimeType: 'text/jsonl',
+  purpose: 'fine-tune',
+);
+
+final part = await client.uploads.addPart(
+  uploadId: upload.id,
+  data: OpenAIFile(bytes: fileBytes, fileName: 'training.jsonl'),
+);
+
+final completed = await client.uploads.complete(
+  uploadId: upload.id,
+  partIds: [part.id],
+);
+
+print(completed.file);
+```
+
+Multipart file inputs use bytes so the Upload API is usable in VM and web
+Dart runtimes. Split large files into chunks before calling `addPart`.
+In the example, `fileBytes` is the byte list returned by your file picker or
+file-reading code.
+
+## Vector Stores
+
+`OpenAIClient.vectorStores` supports vector store lifecycle operations, file
+attachments and content retrieval, ranked search, and file batch ingestion.
+The singleton facade exposes the same module as
+`OpenAI.instance.vectorStores`.
+
+```dart
+final store = await client.vectorStores.create(
+  name: 'Support knowledge base',
+  metadata: {'team': 'support'},
+);
+
+final batch = await client.vectorStores.fileBatches.create(
+  vectorStoreId: store.id,
+  fileIds: ['file_abc123', 'file_def456'],
+);
+
+final results = await client.vectorStores.search(
+  vectorStoreId: store.id,
+  query: 'How do I reset my password?',
+  maxNumResults: 5,
+);
+
+for (final result in results.data) {
+  print('${result.filename}: ${result.content.first.text}');
+}
+```
+
+Use `vectorStores.files` to add or remove individual files and inspect their
+processing state. Use `vectorStores.fileBatches` to retrieve or cancel an
+ingestion batch and list the files it contains. Search filters, ranking options,
+file attributes, and static chunking strategies are represented by public model
+types.
+
+## Batches
+
+`OpenAIClient.batches` and `OpenAI.instance.batches` manage asynchronous Batch
+jobs. Create a JSONL input file with the `batch` purpose, upload it through
+`client.files` or `client.uploads`, then submit its file ID:
+
+```dart
+final batch = await client.batches.create(
+  inputFileId: 'file_abc123',
+  endpoint: '/v1/responses',
+  metadata: {'job': 'nightly-eval'},
+);
+
+final current = await client.batches.retrieve(batchId: batch.id);
+print(current.status);
+```
+
+The module also supports paginated listing and cancellation. When a batch
+finishes, use its `outputFileId` or `errorFileId` with `client.files` to read
+the corresponding result file.
+
+## Fine-tuning Jobs
+
+The current fine-tuning API is available as `client.fineTuning.jobs` and
+`OpenAI.instance.fineTuning.jobs`. The legacy `fineTune` accessor remains only
+for source compatibility; it targets the retired `/v1/fine-tunes` endpoint,
+which was shut down on January 4, 2024. Use Fine-tuning Jobs for new code.
+
+OpenAI is winding down its self-serve fine-tuning platform. Under the current
+schedule, eligible existing customers can create jobs until January 6, 2027;
+fine-tuned models remain available for inference until their base models are
+deprecated. See OpenAI's [fine-tuning availability timeline](https://developers.openai.com/api/docs/deprecations).
+
+The current API accepts supervised, DPO, or reinforcement method configuration
+as a map, preserving the evolving method payloads:
+
+```dart
+final job = await client.fineTuning.jobs.create(
+  model: 'gpt-4o-mini',
+  trainingFile: 'file_abc123',
+  method: {
+    'type': 'supervised',
+    'supervised': {
+      'hyperparameters': {'n_epochs': 2},
+    },
+  },
+);
+
+final events = await client.fineTuning.jobs.listEvents(
+  fineTuningJobId: job.id,
+  limit: 20,
+);
+
+final checkpoints = await client.fineTuning.jobs.checkpoints.list(
+  fineTuningJobId: job.id,
+);
+```
+
+Jobs also support pagination, retrieval, cancellation, pause, and resume.
+
+## Containers
+
+Containers are configured on each client, including independent API keys and
+base URLs. Container files can be uploaded from bytes, referenced by a Files
+API ID, listed, retrieved, downloaded, and deleted.
+
+```dart
+final container = await client.container.containers.create(
+  name: 'analysis-sandbox',
+  memoryLimit: '4g',
+);
+
+final uploaded = await client.container.containerFiles.create(
+  containerId: container.id,
+  file: OpenAIFile(bytes: fileBytes, fileName: 'input.csv'),
+);
+
+final content = await client.container.containerFiles.getContent(
+  containerId: container.id,
+  fileId: uploaded.id,
+);
+```
+
+## Evals
+
+The Evals module retains the source SDK's read and write methods for source
+compatibility. OpenAI made the Evals platform read-only on October 31, 2026 and
+has scheduled API shutdown for November 30, 2026. The entry points are marked
+deprecated; see the [official transition timeline](https://developers.openai.com/api/docs/deprecations).
+
+```dart
+// Read existing evaluation records during the transition window.
+final evals = await client.evals.list(limit: 10);
+final eval = await client.evals.get(evalId: evals.data.first.id);
+
+// Build payloads for an evaluation or run where account access allows it.
+final logsConfig = OpenAIEvalDataSourceConfig.logs(
+  metadata: {'usecase': 'support'},
+);
+final jsonlSource = OpenAIEvalRunDataSource.jsonlFile(
+  fileId: 'file_abc123',
+);
+```
+
+## Graders
+
+The Graders API is retained for source compatibility and marked deprecated by
+OpenAI. Grader payloads are maps so new grader fields can be passed without
+changing SDK model classes.
+
+```dart
+final grader = OpenAIGraders.stringCheckGrader(
+  name: 'exact-match',
+  input: '{{sample.output_text}}',
+  reference: '{{item.reference_answer}}',
+  operation: 'eq',
+);
+
+final result = await client.graders.runGrader(
+  grader: grader,
+  modelSample: 'example response',
+  item: {'reference_answer': 'expected response'},
+);
+```
 
 ## Models
 
@@ -795,6 +1064,10 @@ print(fileContent);
 
 
 ## Fine-Tunes
+
+> **Deprecated:** This section documents the legacy `/v1/fine-tunes` endpoint,
+> which was shut down on January 4, 2024. These examples are retained for
+> historical reference; use [Fine-tuning Jobs](#fine-tuning-jobs) for new code.
 
 ### Create fine-tune
 

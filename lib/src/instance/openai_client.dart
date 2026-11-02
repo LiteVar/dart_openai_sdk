@@ -3,6 +3,16 @@ import '../core/base/openai_client/base.dart';
 import '../core/config/client_config.dart';
 import '../core/utils/logger.dart';
 import 'chat/context_chat.dart';
+import 'responses/responses.dart';
+import 'conversations/conversations.dart';
+import 'files/context_files.dart';
+import 'uploads/uploads.dart';
+import 'vector_stores/vector_stores.dart';
+import 'batches/batches.dart';
+import 'fine_tuning/fine_tuning.dart';
+import 'containers/containers.dart';
+import 'evals/evals.dart';
+import 'graders/graders.dart';
 
 /// {@template openai_client}
 /// A multi-instance OpenAI client, supporting concurrent use of different configurations.
@@ -36,8 +46,17 @@ class OpenAIClient extends OpenAIClientBase {
 
   // Cached feature module instances
   late final ContextualOpenAIChat _chat;
-  // Note: For demonstration purposes, only the chat module is implemented here
-  // In a complete implementation, all modules should be included
+  late final ContextualOpenAIResponses _responses;
+  late final ContextualOpenAIConversations _conversations;
+  late final ContextualOpenAIFiles _files;
+  late final ContextualOpenAIUploads _uploads;
+  late final ContextualOpenAIVectorStores _vectorStores;
+  late final ContextualOpenAIBatches _batches;
+  late final ContextualOpenAIFineTuning _fineTuning;
+  late final ContextualOpenAIContainers _container;
+  late final ContextualOpenAIEvals _evals;
+  late final ContextualOpenAIGraders _graders;
+  // Cached contextual feature modules.
 
   /// {@macro openai_client}
   /// 
@@ -118,13 +137,22 @@ class OpenAIClient extends OpenAIClientBase {
 
     // Initialize feature modules
     _chat = ContextualOpenAIChat(config);
+    _responses = ContextualOpenAIResponses(config);
+    _conversations = ContextualOpenAIConversations(config);
+    _files = ContextualOpenAIFiles(config);
+    _uploads = ContextualOpenAIUploads(config);
+    _vectorStores = ContextualOpenAIVectorStores(config);
+    _batches = ContextualOpenAIBatches(config);
+    _fineTuning = ContextualOpenAIFineTuning(config);
+    _container = ContextualOpenAIContainers(config);
+    _evals = ContextualOpenAIEvals(config);
+    _graders = ContextualOpenAIGraders(config);
     
     // Note: In a complete implementation, all modules should be initialized here:
     // _completion = ContextualOpenAICompletion(config);
     // _embedding = ContextualOpenAIEmbedding(config);
     // _audio = ContextualOpenAIAudio(config);
     // _images = ContextualOpenAIImages(config);
-    // _files = ContextualOpenAIFiles(config);
     // _fineTunes = ContextualOpenAIFineTunes(config);
     // _model = ContextualOpenAIModel(config);
     // _moderations = ContextualOpenAIModerations(config);
@@ -159,12 +187,46 @@ class OpenAIClient extends OpenAIClientBase {
   /// ```
   ContextualOpenAIChat get chat => _chat;
 
+  /// Responses API feature module.
+  ContextualOpenAIResponses get responses => _responses;
+
+  /// Conversations API feature module.
+  ContextualOpenAIConversations get conversations => _conversations;
+
+  /// Files API feature module.
+  ContextualOpenAIFiles get files => _files;
+
+  /// Multipart Upload API feature module.
+  ContextualOpenAIUploads get uploads => _uploads;
+
+  /// Vector Stores API feature module, including file search and ingestion.
+  ContextualOpenAIVectorStores get vectorStores => _vectorStores;
+
+  /// Asynchronous Batch API feature module.
+  ContextualOpenAIBatches get batches => _batches;
+
+  /// Current Fine-tuning Jobs API. The legacy `fineTune` API remains separate.
+  ContextualOpenAIFineTuning get fineTuning => _fineTuning;
+
+  /// Containers API feature module and its container file operations.
+  ContextualOpenAIContainers get container => _container;
+
+  /// Evals API feature module.
+  @Deprecated(
+    'OpenAI is retiring the Evals platform; its API is scheduled to shut down '
+    'on 2026-11-30.',
+  )
+  ContextualOpenAIEvals get evals => _evals;
+
+  /// Grader construction, validation, and execution APIs.
+  @Deprecated('OpenAI is deprecating graders in evals and fine-tuning.')
+  ContextualOpenAIGraders get graders => _graders;
+
   // Note: In a complete implementation, all modules' getters should be included here:
   // ContextualOpenAICompletion get completion => _completion;
   // ContextualOpenAIEmbedding get embedding => _embedding;
   // ContextualOpenAIAudio get audio => _audio;
   // ContextualOpenAIImages get image => _images;
-  // ContextualOpenAIFiles get file => _files;
   // ContextualOpenAIFineTunes get fineTune => _fineTunes;
   // ContextualOpenAIModel get model => _model;
   // ContextualOpenAIModerations get moderation => _moderations;

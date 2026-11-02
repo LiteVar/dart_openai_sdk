@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,6 +8,7 @@ import 'package:dart_openai_sdk/dart_openai_sdk.dart';
 import 'env/env.dart';
 
 void main() async {
+  // Historical example for the retired /v1/fine-tunes endpoint.
   // Set the OpenAI API key from the .env file.
   OpenAI.apiKey = Env.apiKey;
 

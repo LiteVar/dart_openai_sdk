@@ -14,6 +14,9 @@ final class OpenAIFileModel {
   /// The date the file was [created].
   final DateTime createdAt;
 
+  /// The date the file expires, when an expiration policy is configured.
+  final DateTime? expiresAt;
+
   /// The name of the file.
   final String fileName;
 
@@ -25,6 +28,7 @@ final class OpenAIFileModel {
     return id.hashCode ^
         bytes.hashCode ^
         createdAt.hashCode ^
+        expiresAt.hashCode ^
         fileName.hashCode ^
         purpose.hashCode;
   }
@@ -36,17 +40,25 @@ final class OpenAIFileModel {
     required this.createdAt,
     required this.fileName,
     required this.purpose,
+    this.expiresAt,
   });
 
   /// {@macro openai_file_model}
   /// This method is used to convert a [Map<String, dynamic>] object to a [OpenAIFileModel] object.
   factory OpenAIFileModel.fromMap(Map<String, dynamic> map) {
+    final createdAt = map['created_at'];
+    final expiresAt = map['expires_at'];
     return OpenAIFileModel(
-      id: map['id'] as String,
-      bytes: map['bytes'] as int,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      fileName: map['filename'] as String,
-      purpose: map['purpose'] as String,
+      id: map['id']?.toString() ?? '',
+      bytes: map['bytes'] is num ? (map['bytes'] as num).toInt() : 0,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+        (createdAt is num ? createdAt.toInt() : 0) * 1000,
+      ),
+      fileName: map['filename']?.toString() ?? '',
+      purpose: map['purpose']?.toString() ?? '',
+      expiresAt: expiresAt is num
+          ? DateTime.fromMillisecondsSinceEpoch(expiresAt.toInt() * 1000)
+          : null,
     );
   }
 
@@ -57,6 +69,7 @@ final class OpenAIFileModel {
     return other.id == id &&
         other.bytes == bytes &&
         other.createdAt == createdAt &&
+        other.expiresAt == expiresAt &&
         other.fileName == fileName &&
         other.purpose == purpose;
   }

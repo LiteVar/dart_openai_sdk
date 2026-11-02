@@ -32,6 +32,33 @@ class OpenAIApisEndpoints {
   /// none.
   final moderation = "/moderations";
 
+  /// Responses API endpoint.
+  final responses = "/responses";
+
+  /// Conversations API endpoint.
+  final conversations = "/conversations";
+
+  /// Uploads API endpoint.
+  final uploads = "/uploads";
+
+  /// Vector Stores API endpoint.
+  final vectorStores = "/vector_stores";
+
+  /// Batches API endpoint.
+  final batches = "/batches";
+
+  /// Current Fine-tuning Jobs API endpoint.
+  final fineTuningJobs = "/fine_tuning/jobs";
+
+  /// Containers API endpoint.
+  final containers = "/containers";
+
+  /// Evals API endpoint.
+  final evals = "/evals";
+
+  /// Fine-tuning grader endpoint.
+  final graders = "/fine_tuning/alpha/graders";
+
   /// Realtime API endpoint.
   final realtime = "wss://api.openai.com/v1/realtime";
 

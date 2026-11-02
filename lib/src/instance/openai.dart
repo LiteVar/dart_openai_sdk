@@ -15,6 +15,16 @@ import 'model/model.dart';
 import 'realtime/realtime.dart';
 import 'openai_client.dart';
 import 'chat/context_chat.dart';
+import 'responses/responses.dart';
+import 'conversations/conversations.dart';
+import 'files/context_files.dart';
+import 'uploads/uploads.dart';
+import 'vector_stores/vector_stores.dart';
+import 'batches/batches.dart';
+import 'fine_tuning/fine_tuning.dart';
+import 'containers/containers.dart';
+import 'evals/evals.dart';
+import 'graders/graders.dart';
 import 'package:http/http.dart' as http;
 import '../core/models/chat/chat.dart';
 import '../core/models/tool/tool.dart';
@@ -104,7 +114,13 @@ final class OpenAI extends OpenAIClientBase {
   /// The [OpenAIFiles] instance, used to access the files endpoints.
   OpenAIFiles get file => OpenAIFiles();
 
-  /// The [OpenAIFineTunes] instance, used to access the fine-tunes endpoints.
+  /// The legacy [OpenAIFineTunes] API, which uses the retired `/v1/fine-tunes` endpoint.
+  ///
+  /// Use [fineTuning] for the current Fine-tuning Jobs API.
+  @Deprecated(
+    'The /v1/fine-tunes endpoint was shut down on 2024-01-04. '
+    'Use OpenAI.instance.fineTuning.jobs instead.',
+  )
   OpenAIFineTunes get fineTune => OpenAIFineTunes();
 
   /// The [OpenAIModeration] instance, used to access the moderation endpoints.
@@ -118,6 +134,41 @@ final class OpenAI extends OpenAIClientBase {
     final contextualChat = _client.chat;
     return _ChatWrapper(contextualChat);
   }
+
+  /// The Responses API module, using the same configuration as [chat].
+  ContextualOpenAIResponses get responses => _client.responses;
+
+  /// The Conversations API module, using the same configuration as [chat].
+  ContextualOpenAIConversations get conversations => _client.conversations;
+
+  /// The contextual Files API module using the singleton configuration.
+  ContextualOpenAIFiles get files => _client.files;
+
+  /// The Uploads API module using the singleton configuration.
+  ContextualOpenAIUploads get uploads => _client.uploads;
+
+  /// The Vector Stores API module using the singleton configuration.
+  ContextualOpenAIVectorStores get vectorStores => _client.vectorStores;
+
+  /// The asynchronous Batch API module using the singleton configuration.
+  ContextualOpenAIBatches get batches => _client.batches;
+
+  /// Current Fine-tuning Jobs API using the singleton configuration.
+  ContextualOpenAIFineTuning get fineTuning => _client.fineTuning;
+
+  /// Containers API feature module and its container file operations.
+  ContextualOpenAIContainers get container => _client.container;
+
+  /// Evals API feature module.
+  @Deprecated(
+    'OpenAI is retiring the Evals platform; its API is scheduled to shut down '
+    'on 2026-11-30.',
+  )
+  ContextualOpenAIEvals get evals => _client.evals;
+
+  /// Grader construction, validation, and execution APIs.
+  @Deprecated('OpenAI is deprecating graders in evals and fine-tuning.')
+  ContextualOpenAIGraders get graders => _client.graders;
 
   /// The [OpenAIAudio] instance, used to access the audio endpoints.
   OpenAIAudio get audio => OpenAIAudio();
